@@ -148,7 +148,7 @@ public class Main {
             stmt.setTime(2, Time.valueOf("08:00:00"));
             stmt.setTime(3, Time.valueOf("16:00:00"));
             stmt.setFloat(4, 5.0f);
-            stmt.setFloat(5, 40.0f);
+            stmt.setFloat(5, 1200.0f);
             stmt.executeUpdate();
         }
 
@@ -282,6 +282,46 @@ public class Main {
             pstmt.executeUpdate();
             System.out.println("Alquiler registrado con éxito.");
         }
+    }
+
+    public static void darAltaEmpleado(Connection conn, Scanner sc) throws SQLException {
+
+        System.out.println("Introduzca su DNI:");
+        String dni = sc.nextLine();
+        System.out.println("Introduzca su nombre:");
+        String nombre = sc.nextLine();
+        System.out.println("Introduzca sus apellidos:");
+        String apellidos = sc.nextLine();
+        System.out.println("Introduzca su telefono:");
+        String telefono = sc.nextLine();
+        System.out.println("Introduzca su direccion:");
+        String direccion = sc.nextLine();
+        int opcion = -1;
+        String turno;
+        while (opcion != 3) {
+            
+            System.out.println("Selecciona una de las siguientes opciones para su turno:");
+            System.out.println("1. Turno Matutino.");
+            System.out.println("2. Turno de Tarde.");
+            System.out.println("3. Turno Nocturno.");
+
+            opcion = sc.nextInt();
+                switch (opcion) {
+                    case 1:
+                        turno="Turno Matutino";
+                        break;
+                    case 2:
+                        turno="Turno de Tarde";
+                        break;
+                    case 3:
+                        turno="Turno Nocturno";
+                        break;
+                    default:
+                        System.out.println("Opción no válida.");
+                        break;
+                }
+            }
+        
     }
 
     public static void salir(Connection conn) {
