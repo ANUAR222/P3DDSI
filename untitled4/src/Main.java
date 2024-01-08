@@ -321,7 +321,18 @@ public class Main {
                         break;
                 }
             }
-        
+
+        String sql = "INSERT INTO DatosEmpleado (DNI, Nombre, Apellidos, Telefono, Direccion, NombreTurno) VALUES (?, ?, ?, ?, ?, ?)";
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, dni);
+            pstmt.setString(2, nombre);
+            pstmt.setString(3, apellidos);
+            pstmt.setString(4, telefono);
+            pstmt.setDate(5, direccion);
+            pstmt.setDate(6, turno);
+            pstmt.executeUpdate();
+        }
     }
 
     public static void salir(Connection conn) {
