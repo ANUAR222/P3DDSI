@@ -369,6 +369,52 @@ public class Main {
         }
     }
 
+    public static void modificarEmpleado(Connection conn, Scanner sc) throws SQLException {
+
+        System.out.println("Introduzca su nombre:");
+        String nombre = sc.nextLine();
+        System.out.println("Introduzca sus apellidos:");
+        String apellidos = sc.nextLine();
+        System.out.println("Introduzca su telefono:");
+        String telefono = sc.nextLine();
+        System.out.println("Introduzca su direccion:");
+        String direccion = sc.nextLine();
+        int opcion = -1;
+        String turno;
+        while (opcion != 3) {
+            
+            System.out.println("Seleccione una de las siguientes opciones para su turno:");
+            System.out.println("1. Turno Matutino.");
+            System.out.println("2. Turno Vespertino.");
+            System.out.println("3. Turno Nocturno.");
+
+            opcion = sc.nextInt();
+            switch (opcion) {
+                case 1:
+                    turno="Turno Matutino";
+                    break;
+                case 2:
+                    turno="Turno Vespertino";
+                    break;
+                case 3:
+                    turno="Turno Nocturno";
+                    break;
+                default:
+                    System.out.println("Opción no válida.");
+                    break;
+            }
+        }
+
+        String sql = "UPDATE DatosEmpleado SET Nombre=nombre, Apellidos=apellidos, Telefono=telefono, Direccion=direccion, NombreTurno=turno WHERE DNI="; // Sujeto a cambios para conseguir los datos del usuario que ha iniciado sesion en el sistema
+    }
+
+    public static void darBajaEmpleado(Connection conn, Scanner sc) throws SQLException {
+
+        
+
+        String sql = "UPDATE DatosEmpleado SET Nombre=nombre, Apellidos=apellidos, Telefono=telefono, Direccion=direccion, NombreTurno=turno WHERE DNI="; // Sujeto a cambios para conseguir los datos del usuario que ha iniciado sesion en el sistema
+    }
+
     public static void salir(Connection conn) {
         System.out.println("Saliendo...");
         try {
