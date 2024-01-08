@@ -2,7 +2,6 @@
 
 
 import java.sql.*;
-
 import java.util.Scanner;
 import java.time.LocalDate;
 
@@ -287,7 +286,7 @@ public class Main {
     static void insertarDatosTurno(Connection conn) throws SQLException {
 
         String insertDatosTurno = "INSERT INTO DatosTurno (NombreTurno, HoraEntrada, HoraSalida, SueldoHora, SueldoTotal) VALUES (?, ?, ?, ?, ?)";
-        throw (PreparedStatement stmt = conn.prepareStatement(insertDatosTurno)) {
+        try (PreparedStatement stmt = conn.prepareStatement(insertDatosTurno)) {
             stmt.setString(1, "Turno Matutino");
             stmt.setTime(2, Time.valueOf("08:00:00"));
             stmt.setTime(3, Time.valueOf("16:00:00"));
@@ -297,7 +296,7 @@ public class Main {
         }
 
         String insertDatosTurno2 = "INSERT INTO DatosTurno (NombreTurno, HoraEntrada, HoraSalida, SueldoHora, SueldoTotal) VALUES (?, ?, ?, ?, ?)";
-        throw (PreparedStatement stmt = conn.prepareStatement(insertDatosTurno2)) {
+        try (PreparedStatement stmt = conn.prepareStatement(insertDatosTurno2)) {
             stmt.setString(1, "Turno Vespertino");
             stmt.setTime(2, Time.valueOf("16:00:00"));
             stmt.setTime(3, Time.valueOf("00:00:00"));
@@ -307,7 +306,7 @@ public class Main {
         }
 
         String insertDatosTurno3 = "INSERT INTO DatosTurno (NombreTurno, HoraEntrada, HoraSalida, SueldoHora, SueldoTotal) VALUES (?, ?, ?, ?, ?)";
-        throw (PreparedStatement stmt = conn.prepareStatement(insertDatosTurno3)) {
+        try (PreparedStatement stmt = conn.prepareStatement(insertDatosTurno3)) {
             stmt.setString(1, "Turno Nocturno");
             stmt.setTime(2, Time.valueOf("00:00:00"));
             stmt.setTime(3, Time.valueOf("08:00:00"));
@@ -331,7 +330,7 @@ public class Main {
         System.out.println("Introduzca su direccion:");
         String direccion = sc.nextLine();
         int opcion = -1;
-        String turno;
+        String turno = null;
         while (opcion != 3) {
             
             System.out.println("Selecciona una de las siguientes opciones para su turno:");
@@ -358,13 +357,13 @@ public class Main {
 
         String sql = "INSERT INTO DatosEmpleado (DNI, Nombre, Apellidos, Telefono, Direccion, NombreTurno) VALUES (?, ?, ?, ?, ?, ?)";
 
-        throw(PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try(PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, dni);
             pstmt.setString(2, nombre);
             pstmt.setString(3, apellidos);
             pstmt.setString(4, telefono);
-            pstmt.setDate(5, direccion);
-            pstmt.setDate(6, turno);
+            pstmt.setString(5, direccion);
+            pstmt.setString(6, turno);
             pstmt.executeUpdate();
         }
     }
@@ -405,14 +404,15 @@ public class Main {
             }
         }
 
-        String sql = "UPDATE DatosEmpleado SET Nombre=nombre, Apellidos=apellidos, Telefono=telefono, Direccion=direccion, NombreTurno=turno WHERE DNI="; // Sujeto a cambios para conseguir los datos del usuario que ha iniciado sesion en el sistema
+        String sql = "UPDATE DatosEmpleado SET Nombre=nombre, Apellidos=apellidos, Telefono=telefono, Direccion=direccion, NombreTurno=turno WHERE DNI=(usuarioSesion)"; // Sujeto a cambios para conseguir los datos del usuario que ha iniciado sesion en el sistema
     }
 
     public static void darBajaEmpleado(Connection conn, Scanner sc) throws SQLException {
 
-        
+        Date fecha = null;
+        fecha.getTime();
 
-        String sql = "UPDATE DatosEmpleado SET Nombre=nombre, Apellidos=apellidos, Telefono=telefono, Direccion=direccion, NombreTurno=turno WHERE DNI="; // Sujeto a cambios para conseguir los datos del usuario que ha iniciado sesion en el sistema
+        String sql = "UPDATE DatosEmpleado SET FechaBaja=fecha WHERE DNI=(usuarioSesion)"; // Sujeto a cambios para conseguir los datos del usuario que ha iniciado sesion en el sistema
     }
 
     public static void salir(Connection conn) {
