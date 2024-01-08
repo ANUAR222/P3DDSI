@@ -340,21 +340,21 @@ public class Main {
             System.out.println("3. Turno Nocturno.");
 
             opcion = sc.nextInt();
-                switch (opcion) {
-                    case 1:
-                        turno="Turno Matutino";
-                        break;
-                    case 2:
-                        turno="Turno Vespertino";
-                        break;
-                    case 3:
-                        turno="Turno Nocturno";
-                        break;
-                    default:
-                        System.out.println("Opción no válida.");
-                        break;
-                }
+            switch (opcion) {
+                case 1:
+                    turno="Turno Matutino";
+                    break;
+                case 2:
+                    turno="Turno Vespertino";
+                    break;
+                case 3:
+                    turno="Turno Nocturno";
+                    break;
+                default:
+                    System.out.println("Opción no válida.");
+                    break;
             }
+        }
 
         String sql = "INSERT INTO DatosEmpleado (DNI, Nombre, Apellidos, Telefono, Direccion, NombreTurno) VALUES (?, ?, ?, ?, ?, ?)";
 
