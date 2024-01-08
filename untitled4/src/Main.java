@@ -286,34 +286,34 @@ public class Main {
     static void insertarDatosTurno(Connection conn) throws SQLException {
 
         String insertDatosTurno = "INSERT INTO DatosTurno (NombreTurno, HoraEntrada, HoraSalida, SueldoHora, SueldoTotal) VALUES (?, ?, ?, ?, ?)";
-        try (PreparedStatement stmt = conn.prepareStatement(insertDatosTurno)) {
-            stmt.setString(1, "Turno Matutino");
-            stmt.setTime(2, Time.valueOf("08:00:00"));
-            stmt.setTime(3, Time.valueOf("16:00:00"));
-            stmt.setFloat(4, 5.0f);
-            stmt.setFloat(5, 1200.0f);
-            stmt.executeUpdate();
-        }
+        PreparedStatement stmt = conn.prepareStatement(insertDatosTurno);
+        stmt.setString(1, "Turno Matutino");
+        stmt.setTime(2, Time.valueOf("08:00:00"));
+        stmt.setTime(3, Time.valueOf("16:00:00"));
+        stmt.setFloat(4, 5.0f);
+        stmt.setFloat(5, 1200.0f);
+        stmt.executeUpdate();
+
 
         String insertDatosTurno2 = "INSERT INTO DatosTurno (NombreTurno, HoraEntrada, HoraSalida, SueldoHora, SueldoTotal) VALUES (?, ?, ?, ?, ?)";
-        try (PreparedStatement stmt = conn.prepareStatement(insertDatosTurno2)) {
-            stmt.setString(1, "Turno Vespertino");
-            stmt.setTime(2, Time.valueOf("16:00:00"));
-            stmt.setTime(3, Time.valueOf("00:00:00"));
-            stmt.setFloat(4, 6.5f);
-            stmt.setFloat(5, 1560.0f);
-            stmt.executeUpdate();
-        }
+        PreparedStatement stmt1 = conn.prepareStatement(insertDatosTurno2);
+        stmt1.setString(1, "Turno Vespertino");
+        stmt1.setTime(2, Time.valueOf("16:00:00"));
+        stmt1.setTime(3, Time.valueOf("00:00:00"));
+        stmt1.setFloat(4, 6.5f);
+        stmt1.setFloat(5, 1560.0f);
+        stmt1.executeUpdate();
+
 
         String insertDatosTurno3 = "INSERT INTO DatosTurno (NombreTurno, HoraEntrada, HoraSalida, SueldoHora, SueldoTotal) VALUES (?, ?, ?, ?, ?)";
-        try (PreparedStatement stmt = conn.prepareStatement(insertDatosTurno3)) {
-            stmt.setString(1, "Turno Nocturno");
-            stmt.setTime(2, Time.valueOf("00:00:00"));
-            stmt.setTime(3, Time.valueOf("08:00:00"));
-            stmt.setFloat(4, 8.0f);
-            stmt.setFloat(5, 1920.0f);
-            stmt.executeUpdate();
-        }
+        PreparedStatement stmt2 = conn.prepareStatement(insertDatosTurno3);
+        stmt2.setString(1, "Turno Nocturno");
+        stmt2.setTime(2, Time.valueOf("00:00:00"));
+        stmt2.setTime(3, Time.valueOf("08:00:00"));
+        stmt2.setFloat(4, 8.0f);
+        stmt2.setFloat(5, 1920.0f);
+        stmt2.executeUpdate();
+
         
     }
     
@@ -331,6 +331,7 @@ public class Main {
         String direccion = sc.nextLine();
         int opcion = -1;
         String turno = null;
+
         while (opcion != 3) {
             
             System.out.println("Selecciona una de las siguientes opciones para su turno:");
@@ -357,15 +358,15 @@ public class Main {
 
         String sql = "INSERT INTO DatosEmpleado (DNI, Nombre, Apellidos, Telefono, Direccion, NombreTurno) VALUES (?, ?, ?, ?, ?, ?)";
 
-        try(PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, dni);
-            pstmt.setString(2, nombre);
-            pstmt.setString(3, apellidos);
-            pstmt.setString(4, telefono);
-            pstmt.setString(5, direccion);
-            pstmt.setString(6, turno);
-            pstmt.executeUpdate();
-        }
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        pstmt.setString(1, dni);
+        pstmt.setString(2, nombre);
+        pstmt.setString(3, apellidos);
+        pstmt.setString(4, telefono);
+        pstmt.setString(5, direccion);
+        pstmt.setString(6, turno);
+        pstmt.executeUpdate();
+
     }
 
     public static void modificarEmpleado(Connection conn, Scanner sc) throws SQLException {
