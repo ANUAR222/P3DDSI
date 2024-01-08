@@ -284,6 +284,40 @@ public class Main {
         }
     }
 
+    static void insertarDatosTurno(Connection conn) throws SQLException {
+
+        String insertDatosTurno = "INSERT INTO DatosTurno (NombreTurno, HoraEntrada, HoraSalida, SueldoHora, SueldoTotal) VALUES (?, ?, ?, ?, ?)";
+        throw (PreparedStatement stmt = conn.prepareStatement(insertDatosTurno)) {
+            stmt.setString(1, "Turno Matutino");
+            stmt.setTime(2, Time.valueOf("08:00:00"));
+            stmt.setTime(3, Time.valueOf("16:00:00"));
+            stmt.setFloat(4, 5.0f);
+            stmt.setFloat(5, 1200.0f);
+            stmt.executeUpdate();
+        }
+
+        String insertDatosTurno2 = "INSERT INTO DatosTurno (NombreTurno, HoraEntrada, HoraSalida, SueldoHora, SueldoTotal) VALUES (?, ?, ?, ?, ?)";
+        throw (PreparedStatement stmt = conn.prepareStatement(insertDatosTurno2)) {
+            stmt.setString(1, "Turno Vespertino");
+            stmt.setTime(2, Time.valueOf("16:00:00"));
+            stmt.setTime(3, Time.valueOf("00:00:00"));
+            stmt.setFloat(4, 6.5f);
+            stmt.setFloat(5, 1560.0f);
+            stmt.executeUpdate();
+        }
+
+        String insertDatosTurno3 = "INSERT INTO DatosTurno (NombreTurno, HoraEntrada, HoraSalida, SueldoHora, SueldoTotal) VALUES (?, ?, ?, ?, ?)";
+        throw (PreparedStatement stmt = conn.prepareStatement(insertDatosTurno3)) {
+            stmt.setString(1, "Turno Nocturno");
+            stmt.setTime(2, Time.valueOf("00:00:00"));
+            stmt.setTime(3, Time.valueOf("08:00:00"));
+            stmt.setFloat(4, 8.0f);
+            stmt.setFloat(5, 1920.0f);
+            stmt.executeUpdate();
+        }
+        
+    }
+    
     public static void darAltaEmpleado(Connection conn, Scanner sc) throws SQLException {
 
         System.out.println("Introduzca su DNI:");
@@ -302,7 +336,7 @@ public class Main {
             
             System.out.println("Selecciona una de las siguientes opciones para su turno:");
             System.out.println("1. Turno Matutino.");
-            System.out.println("2. Turno de Tarde.");
+            System.out.println("2. Turno Vespertino.");
             System.out.println("3. Turno Nocturno.");
 
             opcion = sc.nextInt();
@@ -311,7 +345,7 @@ public class Main {
                         turno="Turno Matutino";
                         break;
                     case 2:
-                        turno="Turno de Tarde";
+                        turno="Turno Vespertino";
                         break;
                     case 3:
                         turno="Turno Nocturno";
@@ -324,7 +358,7 @@ public class Main {
 
         String sql = "INSERT INTO DatosEmpleado (DNI, Nombre, Apellidos, Telefono, Direccion, NombreTurno) VALUES (?, ?, ?, ?, ?, ?)";
 
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        throw(PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, dni);
             pstmt.setString(2, nombre);
             pstmt.setString(3, apellidos);
