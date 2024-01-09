@@ -416,6 +416,28 @@ public class Main {
         String sql = "UPDATE DatosEmpleado SET FechaBaja=fecha WHERE DNI=(usuarioSesion)"; // Sujeto a cambios para conseguir los datos del usuario que ha iniciado sesion en el sistema
     }
 
+    public static void mostrarEmpleado(Connection conn, Scanner sc) throws SQLException {
+
+        String sql = "SELECT * FROM DatosEmpleado";
+
+        Statement stmt = conn.createStatement();
+        ResultSet rs = stmt.executeQuery(sql);
+
+        System.out.println("Listado de empleados:");
+        System.out.println("DNI\tNombre\tApellidos\tTelefono\tSueldo\tDireccion\tTurno\tFecha Baja");
+        System.out.println("-----------------------------------------------");
+        while (rs.next()) {
+            System.out.println(rs.getString("DNI") + "\t" +
+                    rs.getString("Nombre") + "\t" +
+                    rs.getString("Apellidos") + "\t" +
+                    rs.getString("Telefono") + "\t" +
+                    rs.getDouble("Sueldo") + "\t" +
+                    rs.getString("Direccion") + "\t" +
+                    rs.getString("NombreTurno") + "\t" +
+                    rs.getDate("FechaBaja"));
+        }
+    }
+
     public static void salir(Connection conn) {
         System.out.println("Saliendo...");
         try {
