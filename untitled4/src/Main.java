@@ -2,6 +2,8 @@
 
 
 import java.sql.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Scanner;
 import java.time.LocalDate;
 
@@ -545,6 +547,75 @@ public class Main {
         }
     }
 
+    public static void insertarPelicula(Connection conn) throws SQLException, ParseException {
+        conn.setAutoCommit(false);
+        Savepoint saveInsertPelicula= conn.setSavepoint();
+        String sqlInsertPelicula= "INSERT INTO DatosPelicula (Nombre, Precio, FechaEstreno, FechaAlta, Sinopsis) VALUES (?, ?, ?, ?, ?)";
+        PreparedStatement insertPelicula= conn.prepareStatement(sqlInsertPelicula);
+        Scanner sc= new Scanner(System.in);
+        System.out.println("Introduce el nombre de la pelicula");
+        insertPelicula.setString(1, sc.nextLine());
+        System.out.println("Intoduce el precio");
+        insertPelicula.setFloat(2, sc.nextFloat());
+        LocalDate fechaAlta = LocalDate.now();
+        insertPelicula.setDate(4, Date.valueOf(fechaAlta));
+        System.out.println("Selecciona el dato a introducir o finaliza:\n1.Fecha Estreno\n2.Sinopsis\n3.Finalizar");
+        int opcion=sc.nextInt();
+        insertPelicula.setDate(3, null);
+        insertPelicula.setString(5, null);
+        while (opcion!=3){
+            if(opcion==1) {
+                System.out.println("Introduce la fecha");
+                SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
+                String fechaString = sc.nextLine();
+                // Convertir el String a Date
+                Date fechaEstreno = (Date) formato.parse(fechaString);
+                insertPelicula.setDate(3, fechaEstreno);
+            }
+            else if(opcion==2){
+                System.out.println("Introduce la sinopsis");
+                insertPelicula.setString(5, sc.nextLine());
+            }
+            System.out.println("Selecciona el dato a introducir o finaliza:\n1.Fecha Estreno\n2.Sinopsis\n3.Finalizar");
+        }
+        insertPelicula.execute();
+        String sqlSelect = "SELECT * FROM DatosPelicula ORDER BY IDPelicula DESC FETCH FIRST 1 ROW ONLY";
+        PreparedStatement Select = conn.prepareStatement(sqlSelect);
+        ResultSet resultSet = Select.executeQuery();
+        if (resultSet.next()) {
+
+            int idPelicula = resultSet.getInt("IDPelicula");
+            String nombre = resultSet.getString("Nombre");
+            double precio = resultSet.getDouble("Precio");
+            Date fechaEstreno = resultSet.getDate("FechaEstreno");
+            Date fechaAltaSelect = resultSet.getDate("FechaAlta");
+            Date fechaBaja = resultSet.getDate("FechaBaja");
+            String sinopsisSelect = resultSet.getString("Sinopsis");
+            double calificacion = resultSet.getDouble("Calificacion");
+            int reseñas = resultSet.getInt("Reseñas");
+
+
+            // Mostrar la información de la última película
+            System.out.println("IDPelicula: " + idPelicula);
+            System.out.println("Nombre: " + nombre);
+            System.out.println("Precio: " + precio);
+            System.out.println("Fecha Estreno: " + fechaEstreno);
+            System.out.println("Fecha Alta: " + fechaAltaSelect);
+            System.out.println("Fecha Baja" + fechaBaja);
+            System.out.println("Sinopsis: " + sinopsisSelect);
+            System.out.println("Calificacion: " + calificacion);
+            System.out.println("Reseñas: " + reseñas);
+
+        }
+        System.out.println("¿Quieres confirmar los cambios?\n1. Si\n2. No");
+        switch (sc.nextInt()){
+            case 1:
+                conn.commit();
+            case 2:
+                conn.rollback(saveInsertPelicula);
+        }
+        conn.setAutoCommit(true);
+    }
     public static void salir(Connection conn) {
         System.out.println("Saliendo...");
         try {
