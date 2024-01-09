@@ -19,13 +19,19 @@ public class Main {
             conn = conectarBaseDeDatos(sc);
             int opcion = -1;
 
-            while (opcion != 5) {
+            while (opcion != 11) {
                 System.out.println("Selecciona una de las siguientes opciones:");
                 System.out.println("1. Borrar y crear tablas.");
                 System.out.println("2. Dar alta película.");
                 System.out.println("3. Mostrar películas.");
                 System.out.println("4. Simular inserción de alquiler.");
-                System.out.println("5. Salir.");
+                System.out.println("5. Dar alta a un cliente.");
+                System.out.println("6. Dar alta a un empleado.");
+                System.out.println("7. Dar baja a un empleado.");
+                System.out.println("8. Modificar un empleado.");
+                System.out.println("9. Mostrar empelados.");
+                System.out.println("10. Buscar a un empleado.");
+                System.out.println("11. Salir.");
 
                 opcion = sc.nextInt();
                 switch (opcion) {
@@ -45,6 +51,16 @@ public class Main {
                         darAltaCliente(conn, sc);
                         break;
                     case 6:
+                        darAltaEmpleado(conn,sc);
+                    case 7:
+                        darBajaEmpleado(conn,sc);
+                    case 8:
+                        modificarEmpleado(conn,sc);
+                    case 9:
+                        mostrarEmpleado(conn,sc);
+                    case 10:
+                        buscarEmpleado(conn,sc);
+                    case 11:
                         salir(conn);
                         break;
                     default:
