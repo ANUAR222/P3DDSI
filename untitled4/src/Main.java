@@ -577,6 +577,7 @@ public class Main {
                 insertPelicula.setString(5, sc.nextLine());
             }
             System.out.println("Selecciona el dato a introducir o finaliza:\n1.Fecha Estreno\n2.Sinopsis\n3.Finalizar");
+            opcion = sc.nextInt();
         }
         insertPelicula.execute();
         String sqlSelect = "SELECT * FROM DatosPelicula ORDER BY IDPelicula DESC FETCH FIRST 1 ROW ONLY";
@@ -613,6 +614,40 @@ public class Main {
                 conn.commit();
             case 2:
                 conn.rollback(saveInsertPelicula);
+        }
+        conn.setAutoCommit(true);
+    }
+
+    public static void bajaPelicula(Connection conn) throws SQLException{
+        conn.setAutoCommit(false);
+        Savepoint saveBajaPelicula=conn.setSavepoint();
+        Scanner sc= new Scanner(System.in);
+        System.out.println("Introduce la id de la pelicula a dar de baja");
+        int idPelicula= sc.nextInt();
+        String sqlComprobar = "SELECT COUNT(*) FROM DatosPelicula WHERE IDPelicula = ?";
+        PreparedStatement comprobar = conn.prepareStatement(sqlComprobar);
+        comprobar.setInt(1, idPelicula);
+        ResultSet resultComprobar = comprobar.executeQuery();
+        if(resultComprobar.next()){
+            if (resultComprobar.getInt(1)!=1){
+                System.out.println("Id incorrecto. Se cancela la operacion");
+                conn.rollback(saveBajaPelicula);
+                conn.setAutoCommit(true);
+                return;
+            }
+        }
+        String sqlBaja = "UPDATE DatosPelicula SET FechaBaja = ? WHERE IDPelicula = ?";
+        PreparedStatement baja = conn.prepareStatement(sqlBaja);
+        LocalDate fechaBaja = LocalDate.now();
+        baja.setDate(1, Date.valueOf(fechaBaja));
+        baja.setInt(2, idPelicula);
+        baja.execute();
+        System.out.println("¿Quieres confirmar la baja de la pelicula con id: " + idPelicula + " ?\n1. Si\n2. No");
+        switch (sc.nextInt()){
+            case 1:
+                conn.commit();
+            case 2:
+                conn.rollback(saveBajaPelicula);
         }
         conn.setAutoCommit(true);
     }
