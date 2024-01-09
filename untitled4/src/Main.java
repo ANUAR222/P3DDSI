@@ -41,7 +41,7 @@ public class Main {
                         insertarDatosEjemplo(conn);
                         break;
                     case 2:
-                        darAltaPelicula(conn, sc);
+                        //darAltaPelicula(conn, sc);
                         break;
                     case 3:
                         mostrarPeliculas(conn);
@@ -237,7 +237,7 @@ public class Main {
         }
     }
 
-    public static void darAltaPelicula(Connection conn, Scanner sc) throws SQLException {
+    /*public static void darAltaPelicula(Connection conn, Scanner sc) throws SQLException {
 
         System.out.println("Introduce el nombre de la película:");
         String nombre = sc.nextLine();
@@ -258,7 +258,7 @@ public class Main {
             pstmt.executeUpdate();
             System.out.println("Película añadida con éxito.");
         }
-    }
+    }*/
 
     public static void mostrarPeliculas(Connection conn) throws SQLException {
         String sql = "SELECT IDPelicula, Nombre, Precio, FechaEstreno FROM DatosPelicula";
@@ -556,7 +556,12 @@ public class Main {
         System.out.println("Introduce el nombre de la pelicula");
         insertPelicula.setString(1, sc.nextLine());
         System.out.println("Intoduce el precio");
-        insertPelicula.setFloat(2, sc.nextFloat());
+        double precio=sc.nextDouble();
+        while (precio<0){
+            System.out.println("Intoduce el precio correctamente");
+            precio=sc.nextDouble();
+        }
+        insertPelicula.setDouble(2, precio);
         LocalDate fechaAlta = LocalDate.now();
         insertPelicula.setDate(4, Date.valueOf(fechaAlta));
         System.out.println("Selecciona el dato a introducir o finaliza:\n1.Fecha Estreno\n2.Sinopsis\n3.Finalizar");
@@ -587,7 +592,7 @@ public class Main {
 
             int idPelicula = resultSet.getInt("IDPelicula");
             String nombre = resultSet.getString("Nombre");
-            double precio = resultSet.getDouble("Precio");
+            double precioSelect = resultSet.getDouble("Precio");
             Date fechaEstreno = resultSet.getDate("FechaEstreno");
             Date fechaAltaSelect = resultSet.getDate("FechaAlta");
             Date fechaBaja = resultSet.getDate("FechaBaja");
@@ -599,7 +604,7 @@ public class Main {
             // Mostrar la información de la última película
             System.out.println("IDPelicula: " + idPelicula);
             System.out.println("Nombre: " + nombre);
-            System.out.println("Precio: " + precio);
+            System.out.println("Precio: " + precioSelect);
             System.out.println("Fecha Estreno: " + fechaEstreno);
             System.out.println("Fecha Alta: " + fechaAltaSelect);
             System.out.println("Fecha Baja" + fechaBaja);
@@ -612,18 +617,15 @@ public class Main {
         switch (sc.nextInt()){
             case 1:
                 conn.commit();
+                break;
             case 2:
                 conn.rollback(saveInsertPelicula);
+                break;
         }
         conn.setAutoCommit(true);
     }
 
-    public static void bajaPelicula(Connection conn) throws SQLException{
-        conn.setAutoCommit(false);
-        Savepoint saveBajaPelicula=conn.setSavepoint();
-        Scanner sc= new Scanner(System.in);
-        System.out.println("Introduce la id de la pelicula a dar de baja");
-        int idPelicula= sc.nextInt();
+    public static boolean comprobarIdPelicula(Connection conn, int idPelicula) throws SQLException{
         String sqlComprobar = "SELECT COUNT(*) FROM DatosPelicula WHERE IDPelicula = ?";
         PreparedStatement comprobar = conn.prepareStatement(sqlComprobar);
         comprobar.setInt(1, idPelicula);
@@ -631,10 +633,35 @@ public class Main {
         if(resultComprobar.next()){
             if (resultComprobar.getInt(1)!=1){
                 System.out.println("Id incorrecto. Se cancela la operacion");
-                conn.rollback(saveBajaPelicula);
-                conn.setAutoCommit(true);
-                return;
+                return false;
             }
+            else return true;
+        }
+        else return false;
+    }
+
+    public static boolean comprobarBajaPelicula(Connection conn, int idpelicula) throws SQLException{
+        String sqlComprobarBaja = "SELECT FechaBaja FROM DatosPelicula WHERE IDPelicula = ?";
+        PreparedStatement comprobarBaja = conn.prepareStatement(sqlComprobarBaja);
+        comprobarBaja.setInt(1, idpelicula);
+        ResultSet resultComprobarBaja = comprobarBaja.executeQuery();
+
+        if (resultComprobarBaja.next()) {
+            Date fechaBaja = resultComprobarBaja.getDate("FechaBaja");
+            return fechaBaja != null;
+        }
+        return true;
+    }
+    public static void bajaPelicula(Connection conn) throws SQLException{
+        conn.setAutoCommit(false);
+        Savepoint saveBajaPelicula=conn.setSavepoint();
+        Scanner sc= new Scanner(System.in);
+        System.out.println("Introduce la id de la pelicula a dar de baja");
+        int idPelicula= sc.nextInt();
+        if(!comprobarIdPelicula(conn, idPelicula)){
+            conn.rollback(saveBajaPelicula);
+            conn.setAutoCommit(true);
+            return;
         }
         String sqlBaja = "UPDATE DatosPelicula SET FechaBaja = ? WHERE IDPelicula = ?";
         PreparedStatement baja = conn.prepareStatement(sqlBaja);
@@ -646,10 +673,120 @@ public class Main {
         switch (sc.nextInt()){
             case 1:
                 conn.commit();
+                break;
             case 2:
                 conn.rollback(saveBajaPelicula);
+                break;
         }
         conn.setAutoCommit(true);
+    }
+
+    public static void modificarPelicula(Connection conn) throws SQLException, ParseException {
+        conn.setAutoCommit(false);
+        Savepoint saveUpdatePelicula=conn.setSavepoint();
+        Scanner sc= new Scanner(System.in);
+        System.out.println("Introduce la id de la pelicula a dar de baja");
+        int idPelicula= sc.nextInt();
+        if(!comprobarIdPelicula(conn, idPelicula)) {
+            conn.rollback(saveUpdatePelicula);
+            conn.setAutoCommit(true);
+            return;
+        }
+        if(comprobarBajaPelicula(conn, idPelicula)){
+            System.out.println("La pelicula esta dada de baja.");
+            return;
+        }
+        System.out.println("¿Que campo desea modificar?:\n1. Nombre\n2. Precio\n3. Fecha Estreno\n4. Sinopsis\n5. Finalizar");
+        int opcion = sc.nextInt();
+        PreparedStatement updatePelicula;
+        String sqlUpdatePelicula;
+        while (opcion!=5) {
+            switch (opcion) {
+                case 1:
+                    sqlUpdatePelicula = "UPDATE DatosPelicula SET Nombre = ? WHERE IDPelicula = ?";
+                    updatePelicula = conn.prepareStatement(sqlUpdatePelicula);
+                    updatePelicula.setInt(2, idPelicula);
+                    System.out.println("Introduce el nombre");
+                    updatePelicula.setString(1, sc.nextLine());
+                    updatePelicula.execute();
+                    break;
+                case 2:
+                    sqlUpdatePelicula = "UPDATE DatosPelicula SET Precio = ? WHERE IDPelicula = ?";
+                    updatePelicula = conn.prepareStatement(sqlUpdatePelicula);
+                    updatePelicula.setInt(2, idPelicula);
+                    System.out.println("Introduce el precio");
+                    double precio = sc.nextDouble();
+                    while (precio < 0) {
+                        System.out.println("Intoduce el precio correctamente");
+                        precio = sc.nextDouble();
+                    }
+                    updatePelicula.setDouble(1, precio);
+                    updatePelicula.execute();
+                    break;
+                case 3:
+                    sqlUpdatePelicula = "UPDATE DatosPelicula SET FechaEstreno = ? WHERE IDPelicula = ?";
+                    updatePelicula = conn.prepareStatement(sqlUpdatePelicula);
+                    updatePelicula.setInt(2, idPelicula);
+                    System.out.println("Introduce la Fecha de Estreno");
+                    SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
+                    String fechaString = sc.nextLine();
+                    // Convertir el String a Date
+                    Date fechaEstreno = (Date) formato.parse(fechaString);
+                    updatePelicula.setDate(1, fechaEstreno);
+                    updatePelicula.execute();
+                    break;
+                case 4:
+                    sqlUpdatePelicula = "UPDATE DatosPelicula SET Sinopsis = ? WHERE IDPelicula = ?";
+                    updatePelicula = conn.prepareStatement(sqlUpdatePelicula);
+                    updatePelicula.setInt(2, idPelicula);
+                    System.out.println("Introduce la sinopsis");
+                    updatePelicula.setString(1, sc.nextLine());
+                    updatePelicula.execute();
+                    break;
+            }
+            System.out.println("¿Que campo desea modificar?:\n1. Nombre\n2. Precio\n3. Fecha Estreno\n4. Sinopsis\n5. Finalizar");
+            opcion = sc.nextInt();
+        }
+
+        String sqlSelect = "SELECT * FROM DatosPelicula WHERE IDPelicula = ?";
+        PreparedStatement select = conn.prepareStatement(sqlSelect);
+        select.setInt(1, idPelicula);
+        ResultSet resultSet = select.executeQuery();
+        if (resultSet.next()) {
+
+            String nombre = resultSet.getString("Nombre");
+            double precioSelect = resultSet.getDouble("Precio");
+            Date fechaEstreno = resultSet.getDate("FechaEstreno");
+            Date fechaAltaSelect = resultSet.getDate("FechaAlta");
+            Date fechaBaja = resultSet.getDate("FechaBaja");
+            String sinopsisSelect = resultSet.getString("Sinopsis");
+            double calificacion = resultSet.getDouble("Calificacion");
+            int reseñas = resultSet.getInt("Reseñas");
+
+
+            // Mostrar la información de la última película
+            System.out.println("IDPelicula: " + idPelicula);
+            System.out.println("Nombre: " + nombre);
+            System.out.println("Precio: " + precioSelect);
+            System.out.println("Fecha Estreno: " + fechaEstreno);
+            System.out.println("Fecha Alta: " + fechaAltaSelect);
+            System.out.println("Fecha Baja" + fechaBaja);
+            System.out.println("Sinopsis: " + sinopsisSelect);
+            System.out.println("Calificacion: " + calificacion);
+            System.out.println("Reseñas: " + reseñas);
+
+        }
+        System.out.println("¿Quieres confirmar los cambios?\n1. Si\n2. No");
+        switch (sc.nextInt()){
+            case 1:
+                conn.commit();
+                break;
+            case 2:
+                conn.rollback(saveUpdatePelicula);
+                break;
+        }
+        conn.setAutoCommit(true);
+
     }
     public static void salir(Connection conn) {
         System.out.println("Saliendo...");
