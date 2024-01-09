@@ -788,6 +788,50 @@ public class Main {
         conn.setAutoCommit(true);
 
     }
+    public static void insertarGenero(Connection conn) throws SQLException {
+        System.out.println("Introduce el nombre del genero");
+        String sqlInsertGenero = "INSERT INTO DatosGenero (Nombre) Values (?)";
+        PreparedStatement insertGenero = conn.prepareStatement(sqlInsertGenero);
+        Scanner sc = new Scanner(System.in);
+        insertGenero.setString(1, sc.nextLine());
+        insertGenero.execute();
+    }
+    public static void mostrarGenero(Connection conn) throws SQLException{
+        String sqlSelect = "SELECT * FROM DatosGenero";
+        PreparedStatement select = conn.prepareStatement(sqlSelect);
+        ResultSet resultSelect = select.executeQuery();
+        while(resultSelect.next()){
+            System.out.println("ID: " + resultSelect.getInt("IDGenero") + " Nombre: " + resultSelect.getString("Nombre"));
+        }
+    }
+    public static void insertarActor(Connection conn) throws SQLException{
+        System.out.println("Introduce el nombre del Actor");
+        String sqlInsertActor = "INSERT INTO Actores (NombreActor) Values (?)";
+        PreparedStatement insertActor = conn.prepareStatement(sqlInsertActor);
+        Scanner sc = new Scanner(System.in);
+        insertActor.setString(1, sc.nextLine());
+        insertActor.execute();
+    }
+    public static void mostrarActor(Connection conn) throws SQLException{
+        String sqlSelect = "SELECT * FROM Actores";
+        PreparedStatement select = conn.prepareStatement(sqlSelect);
+        ResultSet resultSelect = select.executeQuery();
+        while(resultSelect.next()){
+            System.out.println("Nombre: " + resultSelect.getString("NombreActor"));
+        }
+    }
+    public static void añadirGeneroActor(Connection conn) throws SQLException{
+        conn.setAutoCommit(false);
+        Savepoint saveAñadir = conn.setSavepoint();
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Introduce el id de la pelicula");
+        int idPelicula = sc.nextInt();
+        if(!comprobarIdPelicula(conn, idPelicula)||comprobarBajaPelicula(conn, idPelicula)){
+            System.out.println("El id es incorrecto o esta dada de baja");
+            return;
+        }
+
+    }
     public static void salir(Connection conn) {
         System.out.println("Saliendo...");
         try {
