@@ -438,6 +438,91 @@ public class Main {
         }
     }
 
+    public static void buscarEmpleado(Connection conn, Scanner sc) throws SQLException {
+
+        int opcion = -1;
+        while (opcion != 3) {
+
+            System.out.println("Seleccione una de las siguientes opciones para su busqueda:");
+            System.out.println("1. Busqueda por nombre.");
+            System.out.println("2. Busqueda por apellidoS.");
+            System.out.println("3. Busqueda por DNI.");
+
+            opcion = sc.nextInt();
+            switch (opcion) {
+                case 1:
+                    System.out.println("Introduzca el nombre del empleado:");
+                    String nombre = sc.nextLine();
+                    String sql = "SELECT * FROM DatosEmpleado WHERE Nombre=nombre";
+
+                    Statement stmt = conn.createStatement();
+                    ResultSet rs = stmt.executeQuery(sql);
+
+                    System.out.println("Resultados de empleados buscados por nombre:");
+                    System.out.println("DNI\tNombre\tApellidos\tTelefono\tSueldo\tDireccion\tTurno\tFecha Baja");
+                    System.out.println("-----------------------------------------------");
+                    while (rs.next()) {
+                        System.out.println(rs.getString("DNI") + "\t" +
+                                rs.getString("Nombre") + "\t" +
+                                rs.getString("Apellidos") + "\t" +
+                                rs.getString("Telefono") + "\t" +
+                                rs.getDouble("Sueldo") + "\t" +
+                                rs.getString("Direccion") + "\t" +
+                                rs.getString("NombreTurno") + "\t" +
+                                rs.getDate("FechaBaja"));
+                    }
+                    break;
+                case 2:
+                    System.out.println("Introduzca los apellidos del empleado:");
+                    String apellidos = sc.nextLine();
+                    String sql1 = "SELECT * FROM DatosEmpleado WHERE Apellidos=apellidos";
+
+                    Statement stmt1 = conn.createStatement();
+                    ResultSet rs1 = stmt1.executeQuery(sql1);
+
+                    System.out.println("Resultados de empleados buscados por apellidos:");
+                    System.out.println("DNI\tNombre\tApellidos\tTelefono\tSueldo\tDireccion\tTurno\tFecha Baja");
+                    System.out.println("-----------------------------------------------");
+                    while (rs1.next()) {
+                        System.out.println(rs1.getString("DNI") + "\t" +
+                                rs1.getString("Nombre") + "\t" +
+                                rs1.getString("Apellidos") + "\t" +
+                                rs1.getString("Telefono") + "\t" +
+                                rs1.getDouble("Sueldo") + "\t" +
+                                rs1.getString("Direccion") + "\t" +
+                                rs1.getString("NombreTurno") + "\t" +
+                                rs1.getDate("FechaBaja"));
+                    }
+                    break;
+                case 3:
+                    System.out.println("Introduzca el DNI del empleado:");
+                    String dni = sc.nextLine();
+                    String sql2 = "SELECT * FROM DatosEmpleado WHERE DNI=dni";
+
+                    Statement stmt2 = conn.createStatement();
+                    ResultSet rs2 = stmt2.executeQuery(sql2);
+
+                    System.out.println("Resultados de empleados buscados por DNI:");
+                    System.out.println("DNI\tNombre\tApellidos\tTelefono\tSueldo\tDireccion\tTurno\tFecha Baja");
+                    System.out.println("-----------------------------------------------");
+                    while (rs2.next()) {
+                        System.out.println(rs2.getString("DNI") + "\t" +
+                                rs2.getString("Nombre") + "\t" +
+                                rs2.getString("Apellidos") + "\t" +
+                                rs2.getString("Telefono") + "\t" +
+                                rs2.getDouble("Sueldo") + "\t" +
+                                rs2.getString("Direccion") + "\t" +
+                                rs2.getString("NombreTurno") + "\t" +
+                                rs2.getDate("FechaBaja"));
+                    }
+                    break;
+                default:
+                    System.out.println("Opción no válida.");
+                    break;
+            }
+        }
+    }
+
     public static void salir(Connection conn) {
         System.out.println("Saliendo...");
         try {
