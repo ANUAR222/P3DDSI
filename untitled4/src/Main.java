@@ -29,7 +29,7 @@ public class Main {
                 System.out.println("6. Dar alta a un empleado.");
                 System.out.println("7. Dar baja a un empleado.");
                 System.out.println("8. Modificar un empleado.");
-                System.out.println("9. Mostrar empelados.");
+                System.out.println("9. Mostrar empleados.");
                 System.out.println("10. Buscar a un empleado.");
                 System.out.println("11. Salir.");
 
