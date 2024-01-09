@@ -371,6 +371,9 @@ public class Main {
 
     public static void modificarEmpleado(Connection conn, Scanner sc) throws SQLException {
 
+        System.out.println("Introduzca el DNI del empleado que quieras modificar:");
+        String dni = sc.nextLine();
+
         System.out.println("Introduzca su nombre:");
         String nombre = sc.nextLine();
         System.out.println("Introduzca sus apellidos:");
@@ -405,15 +408,18 @@ public class Main {
             }
         }
 
-        String sql = "UPDATE DatosEmpleado SET Nombre=nombre, Apellidos=apellidos, Telefono=telefono, Direccion=direccion, NombreTurno=turno WHERE DNI=(usuarioSesion)"; // Sujeto a cambios para conseguir los datos del usuario que ha iniciado sesion en el sistema
+        String sql = "UPDATE DatosEmpleado SET Nombre=nombre, Apellidos=apellidos, Telefono=telefono, Direccion=direccion, NombreTurno=turno WHERE DNI=dni";
     }
 
     public static void darBajaEmpleado(Connection conn, Scanner sc) throws SQLException {
 
+        System.out.println("Introduzca el DNI del empleado que quieras dar de baja:");
+        String dni = sc.nextLine();
+
         Date fecha = null;
         fecha.getTime();
 
-        String sql = "UPDATE DatosEmpleado SET FechaBaja=fecha WHERE DNI=(usuarioSesion)"; // Sujeto a cambios para conseguir los datos del usuario que ha iniciado sesion en el sistema
+        String sql = "UPDATE DatosEmpleado SET FechaBaja=fecha WHERE DNI=dni";
     }
 
     public static void mostrarEmpleado(Connection conn, Scanner sc) throws SQLException {
