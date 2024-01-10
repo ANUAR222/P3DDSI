@@ -790,7 +790,7 @@ public static void simularInsercionAlquiler(Connection conn, Scanner sc) throws 
      public static boolean comprobarBajaCliente(Connection conn, String correo) throws SQLException{
         String sqlComprobarBaja = "SELECT FechaBaja FROM DatosCliente WHERE CorreoElectronico = ?";
         PreparedStatement comprobarBaja = conn.prepareStatement(sqlComprobarBaja);
-        comprobarBaja.setInt(1, correo);
+        comprobarBaja.setString(1, correo);
         ResultSet resultComprobarBaja = comprobarBaja.executeQuery();
 
         if (resultComprobarBaja.next()) {
@@ -1100,6 +1100,7 @@ public static void simularInsercionAlquiler(Connection conn, Scanner sc) throws 
 
         }
     }
+    //Comprobar baja y correo existente
     public static void darBajaCliente(Connection conn, Scanner sc) throws SQLException {                               
                                                                                                                    
     System.out.println("Introduzca el correo electronico del cliente que quieras dar de baja:");                   
@@ -1115,8 +1116,8 @@ public static void simularInsercionAlquiler(Connection conn, Scanner sc) throws 
     pstmt.setString(2, correo);                                                                                    
     pstmt.executeUpdate();                                                                                         
 }                                                                                                                  
-                                                                                                                   
-public static void mostrarDatosCliente(Connection conn, Scanner sc) throws SQLException {                          
+    //Comprobar correo
+    public static void mostrarDatosCliente(Connection conn, Scanner sc) throws SQLException {
                                                                                                                    
     System.out.println("Introduzca el correo electronico del cliente que quieras ver los datos:");                 
     String correo = sc.nextLine();                                                                                 
@@ -1135,7 +1136,7 @@ public static void mostrarDatosCliente(Connection conn, Scanner sc) throws SQLEx
             rs.getDate(5) + "\t" +                                                                                 
             rs.getDate(6));                                                                                        
 }                                                                                                                  
-                                                                                                                   
+       //Comprobar correo y baja
 static void modificarCliente(Connection conn, Scanner sc) throws SQLException {                                    
                                                                                                                    
     System.out.println("Introduce el correo electrónico del cliente a modificar:");                                
@@ -1156,7 +1157,7 @@ static void modificarCliente(Connection conn, Scanner sc) throws SQLException {
                                                                                                                    
                                                                                                                    
 }                                                                                                                  
-                                                                                                                   
+//Comprobar corrro baja y idpelicula
 public static void mostrarPeliculasAlquiladas(Connection conn, Scanner sc) throws SQLException {                   
     System.out.println("Introduzca el correo electronico del cliente que quieras ver los alquileres:");            
     String correo = sc.nextLine();                                                                                 
