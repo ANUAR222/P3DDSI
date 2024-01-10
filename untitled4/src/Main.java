@@ -33,6 +33,7 @@ public class Main {
                 System.out.println("7. Salir.");
 
                 opcion = sc.nextInt();
+                sc.nextLine();
                 switch (opcion) {
                     case 1:
                         insertarDatosEjemplo(conn);
@@ -47,7 +48,7 @@ public class Main {
                         simularInsercionAlquiler(conn, sc);
                         break;
                     case 5:
-                        darAltaCliente(conn, sc);
+                        menuCliente(conn, sc);
                         break;
                     case 6:
                         menuEmpleados(conn,sc);
@@ -1058,6 +1059,128 @@ public static void simularInsercionAlquiler(Connection conn, Scanner sc) throws 
 
         }
     }
+    public static void darBajaCliente(Connection conn, Scanner sc) throws SQLException {                               
+                                                                                                                   
+    System.out.println("Introduzca el correo electronico del cliente que quieras dar de baja:");                   
+    String correo;                                                                                                 
+    correo = sc.nextLine();                                                                                        
+    correo = sc.nextLine();                                                                                        
+                                                                                                                   
+    LocalDate fecha = LocalDate.now();                                                                             
+                                                                                                                   
+    String sql = "UPDATE DatosCliente SET FechaBaja=? WHERE CorreoElectronico=?";                                  
+    PreparedStatement pstmt = conn.prepareStatement(sql);                                                          
+    pstmt.setDate(1, Date.valueOf(fecha));                                                                         
+    pstmt.setString(2, correo);                                                                                    
+    pstmt.executeUpdate();                                                                                         
+}                                                                                                                  
+                                                                                                                   
+public static void mostrarDatosCliente(Connection conn, Scanner sc) throws SQLException {                          
+                                                                                                                   
+    System.out.println("Introduzca el correo electronico del cliente que quieras ver los datos:");                 
+    String correo = sc.nextLine();                                                                                 
+    String sql = "SELECT * FROM DatosCliente WHERE CorreoElectronico='" + correo + "'";                            
+    Statement pstmt = conn.createStatement();                                                                      
+    ResultSet rs = pstmt.executeQuery(sql);                                                                        
+                                                                                                                   
+    System.out.println("Datos de cliente:");                                                                       
+    System.out.println("CorreoElectronico\tNombre\tApellidos\tTelefono\tFechaAlta\tFecha Baja");                   
+    System.out.println("-----------------------------------------------");                                         
+    rs.next();                                                                                                     
+    System.out.println(rs.getString(1) + "\t" +                                                                    
+            rs.getString(2) + "\t" +                                                                               
+            rs.getString(3) + "\t" +                                                                               
+            rs.getString(4) + "\t" +                                                                               
+            rs.getDate(5) + "\t" +                                                                                 
+            rs.getDate(6));                                                                                        
+}                                                                                                                  
+                                                                                                                   
+static void modificarCliente(Connection conn, Scanner sc) throws SQLException {                                    
+                                                                                                                   
+    System.out.println("Introduce el correo electrónico del cliente a modificar:");                                
+    String correo = sc.nextLine();                                                                                 
+    System.out.println("Introduce el nombre nuevo del cliente:");                                                  
+    String nombre = sc.nextLine();                                                                                 
+    System.out.println("Introduce los apellidos nuevos del cliente:");                                             
+    String apellidos = sc.nextLine();                                                                              
+    System.out.println("Introduce el teléfono nuevo del cliente:");                                                
+    String telefono = sc.nextLine();                                                                               
+    String sql = "UPDATE DatosCliente SET Nombre=?, Apellidos=?, Telefono=? WHERE CorreoElectronico=?";            
+    PreparedStatement pstmt = conn.prepareStatement(sql);                                                          
+    pstmt.setString(1, nombre);                                                                                    
+    pstmt.setString(2, apellidos);                                                                                 
+    pstmt.setString(3, telefono);                                                                                  
+    pstmt.setString(4, correo);                                                                                    
+    pstmt.executeUpdate();                                                                                         
+                                                                                                                   
+                                                                                                                   
+}                                                                                                                  
+                                                                                                                   
+public static void mostrarPeliculasAlquiladas(Connection conn, Scanner sc) throws SQLException {                   
+    System.out.println("Introduzca el correo electronico del cliente que quieras ver los alquileres:");            
+    String correo = sc.nextLine();                                                                                 
+    String sql = "SELECT IDPelicula FROM AlquilaV2 WHERE CorreoElectronico='" + correo + "'";                      
+    Statement pstmt = conn.createStatement();                                                                      
+    ResultSet rs = pstmt.executeQuery(sql);                                                                        
+    String peli;                                                                                                   
+    ResultSet rs2;                                                                                                 
+    while (rs.next()) {                                                                                            
+        peli = "SELECT * FROM DatosPelicula WHERE IDPelicula='" + rs.getString(1) + "'";                           
+        pstmt = conn.createStatement();                                                                            
+        rs2 = pstmt.executeQuery(peli);                                                                            
+        rs2.next();                                                                                                
+        System.out.println("ID: " + rs2.getString(1));                                                             
+        System.out.println("Nombre: " + rs2.getString(2));                                                         
+        System.out.println("Precio: " + rs2.getString(3));                                                         
+        System.out.println("FechaEstreno: " + rs2.getString(4));                                                   
+        System.out.println("FechaAlta: " + rs2.getString(5));                                                      
+        System.out.println("FechaBaja: " + rs2.getString(6));                                                      
+        System.out.println("Sinopsis: " + rs2.getString(7));                                                       
+        System.out.println("Calificacion: 16" + rs2.getString(8));                                                 
+        System.out.println("-------------------------------------------------");                                   
+    }                                                                                                              
+}                                                                                                                  
+                                                                                                                                                                                                                                
+                                                                                                                   
+static void menuCliente(Connection conn, Scanner sc) throws SQLException {                                         
+                                                                                                                   
+    System.out.println("Bienvenido al menu de cliente:");                                                          
+    int opcion = -1;                                                                                               
+                                                                                                                   
+                                                                                                                   
+    while (opcion != 5) {                                                                                          
+                                                                                                                   
+        System.out.println("Selecciona una de las siguientes opciones del cliente:");                              
+        System.out.println("1. Dar alta a un cliente.");                                                           
+        System.out.println("2. Dar baja a un cliente.");                                                           
+        System.out.println("3. Modificar un cliente.");                                                            
+        System.out.println("4. Mostrar datos de cliente.");                                                        
+        System.out.println("5. Mostrar peliculas alquiladas.");                                                    
+                                                                                                                   
+        opcion = sc.nextInt();                                                                                     
+        switch (opcion) {                                                                                          
+            case 1:                                                                                                
+                darAltaCliente(conn, sc);                                                                          
+                break;                                                                                             
+            case 2:                                                                                                
+                darBajaCliente(conn, sc);                                                                          
+                break;                                                                                             
+            case 3:                                                                                                
+                modificarCliente(conn, sc);                                                                        
+                break;                                                                                             
+            case 4:                                                                                                
+                mostrarDatosCliente(conn, sc);                                                                     
+                break;                                                                                             
+            case 5:                                                                                                
+                mostrarPeliculasAlquiladas(conn, sc);                                                              
+                break;                                                                                             
+            default:                                                                                               
+                System.out.println("Opción no válida.");                                                           
+                break;                                                                                             
+        }                                                                                                          
+    }                                                                                                              
+                                                                                                                   
+}                                                                                                                  
     public static void salir(Connection conn) {
         System.out.println("Saliendo...");
         try {
