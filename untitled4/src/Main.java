@@ -192,6 +192,7 @@ public class Main {
             stmt.executeUpdate();
         }
     }
+    //No hace falta el telefono si o si y hay que comprobar que no exista el correo y quitar el try
     static void darAltaCliente(Connection conn, Scanner sc) throws SQLException {
 
         System.out.println("Introduce el correo electrónico del cliente:");
@@ -264,7 +265,7 @@ public static void simularInsercionAlquiler(Connection conn, Scanner sc) throws 
         }
     }
 
-
+    //Quitar try
     public static void mostrarAlquileres(Connection conn) throws SQLException {
         String sql = "SELECT * FROM DatosAlquila";
         try (Statement stmt = conn.createStatement()) {
@@ -280,6 +281,7 @@ public static void simularInsercionAlquiler(Connection conn, Scanner sc) throws 
             }
         }
     }
+    //Comprobar correo idpelicula tanto existir como baja
     public static void registrarNuevoAlquiler(Connection conn, Scanner sc) throws SQLException {
         System.out.println("Introduce el correo electrónico del cliente:");
         String correo = sc.nextLine();
@@ -304,7 +306,7 @@ public static void simularInsercionAlquiler(Connection conn, Scanner sc) throws 
             System.out.println("Alquiler registrado con éxito.");
         }
     }
-
+    //Comprobar correo idpelicula tanto existir como baja
     public static void simularExtenderAlquiler(Connection conn, Scanner sc) throws SQLException {
         System.out.println("Introduce el ID de la película:");
         int idPelicula = sc.nextInt();
