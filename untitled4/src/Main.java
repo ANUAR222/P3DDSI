@@ -534,7 +534,7 @@ public static void simularInsercionAlquiler(Connection conn, Scanner sc) throws 
         System.out.println("Introduzca su direccion:");
         String direccion = sc.nextLine();
         int opcion = -1;
-        String turno;
+        String turno=null;
         while (opcion != 3) {
             
             System.out.println("Seleccione una de las siguientes opciones para su turno:");
