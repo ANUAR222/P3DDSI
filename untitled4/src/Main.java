@@ -22,19 +22,15 @@ public class Main {
             conn = conectarBaseDeDatos(sc);
             int opcion = -1;
 
-            while (opcion != 11) {
+            while (opcion != 7) {
                 System.out.println("Selecciona una de las siguientes opciones:");
                 System.out.println("1. Borrar y crear tablas.");
                 System.out.println("2. Dar alta película.");
                 System.out.println("3. Mostrar películas.");
                 System.out.println("4. Simular inserción de alquiler.");
                 System.out.println("5. Dar alta a un cliente.");
-                System.out.println("6. Dar alta a un empleado.");
-                System.out.println("7. Dar baja a un empleado.");
-                System.out.println("8. Modificar un empleado.");
-                System.out.println("9. Mostrar empleados.");
-                System.out.println("10. Buscar a un empleado.");
-                System.out.println("11. Salir.");
+                 System.out.println("6. Menu de empleado.");
+                System.out.println("7. Salir.");
 
                 opcion = sc.nextInt();
                 switch (opcion) {
@@ -54,16 +50,9 @@ public class Main {
                         darAltaCliente(conn, sc);
                         break;
                     case 6:
-                        darAltaEmpleado(conn,sc);
+                        menuEmpleados(conn,sc);
+                        break;
                     case 7:
-                        darBajaEmpleado(conn,sc);
-                    case 8:
-                        modificarEmpleado(conn,sc);
-                    case 9:
-                        mostrarEmpleado(conn,sc);
-                    case 10:
-                        buscarEmpleado(conn,sc);
-                    case 11:
                         salir(conn);
                         break;
                     default:
@@ -404,6 +393,45 @@ public static void simularInsercionAlquiler(Connection conn, Scanner sc) throws 
         }
     }
 
+    static void menuEmpleados(Connection conn, Scanner sc) throws SQLException{
+
+        System.out.println("Bienvenido al menu de empleado:");
+        int opcion = -1;
+
+
+        while (opcion != 5) {
+
+            System.out.println("Selecciona una de las siguientes opciones del empleado:");
+            System.out.println("1. Dar alta a un empleado.");
+            System.out.println("2. Dar baja a un empleado.");
+            System.out.println("3. Modificar un empleado.");
+            System.out.println("4. Mostrar empleados.");
+            System.out.println("5. Buscar un empleado(Por Nombre, Apellidos o DNI).");
+
+            opcion = sc.nextInt();
+            switch (opcion) {
+                case 1:
+                    darAltaEmpleado(conn,sc);
+                    break;
+                case 2:
+                    darBajaEmpleado(conn,sc);
+                    break;
+                case 3:
+                    modificarEmpleado(conn,sc);
+                    break;
+                case 4:
+                    mostrarEmpleado(conn,sc);
+                    break;
+                case 5:
+                    buscarEmpleado(conn,sc);
+                    break;
+                default:
+                    System.out.println("Opción no válida.");
+                    break;
+            }
+        }
+
+    }
 
     static void insertarDatosTurno(Connection conn) throws SQLException {
 
