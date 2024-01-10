@@ -64,16 +64,33 @@ public class Alquiler {
             do {
                 System.out.println("Introduce el correo electrónico del cliente:");
                 correo = sc.nextLine();
+                if (!comprobarExisteCliente(conn, correo)) {
+                    System.out.println("Error: El cliente no existe. introduzca espacio para salir");
+                    String salir = sc.nextLine();
+                    if (salir.equals(" ")) {
+                        return;
+                    }
+                }
             } while (Main.comprobarBajaCliente(conn, correo) || !comprobarExisteCliente(conn, correo));
 
             do {
                 System.out.println("Introduce el ID de la película:");
                 idPelicula = sc.nextInt();
                 sc.nextLine();  // Consumir el salto de línea pendiente
+                if (!comprobarexistePelicula(conn, idPelicula)) {
+                    System.out.println("Error: La película no existe. introduzca espacio para salir");
+                    String salir = sc.nextLine();
+                    if (salir.equals(" ")) {
+                        return;
+                    }
+                }
             } while (!comprobarexistePelicula(conn, idPelicula));
             if (comprobarExisteAlquiler(conn, correo, idPelicula)) {
-                System.out.println("Error: El cliente ya tiene esta película alquilada.");
-                return;
+                System.out.println("Error: El cliente ya tiene esta película alquilada. introduzca espacio para salir");
+                String salir = sc.nextLine();
+                if (salir.equals(" ")) {
+                    return;
+                }
             }
         }while (comprobarExisteAlquiler(conn, correo, idPelicula));
         //pon la fecha actual
@@ -82,9 +99,15 @@ public class Alquiler {
         do {
             System.out.println("Introduce la fecha de vencimiento (YYYY-MM-DD):");
             fechaVencimiento = sc.nextLine();
+            if (fechaVencimiento.compareTo(fechaAlquiler) < 0) {
+                System.out.println("Error: La fecha de vencimiento debe ser posterior a la fecha de alquiler. introduzca espacio para salir");
+                String salir = sc.nextLine();
+                if (salir.equals(" ")) {
+                    return;
+                }
+            }
         }while (fechaVencimiento.compareTo(fechaAlquiler) < 0);
 
-        System.out.println("Introduce el precio del alquiler:");
         double precioAlquiler = calcular_precio_alquiler(conn, fechaAlquiler, fechaVencimiento, idPelicula);
 
         String sql = "INSERT INTO DatosAlquiler (CorreoElectronico, IDPelicula, FechaAlquiler, FechaVencimiento, PrecioAlquiler) VALUES (?, ?, ?, ?, ?)";
@@ -100,14 +123,14 @@ public class Alquiler {
     }
     //Comprobar correo idpelicula tanto existir como baja
 
-    //un alquiler se calcula con la fecha de alquiler y la fecha de vencimiento y el precio de la pelicula cada dia es un 1% del precio de la pelicula
+    //un alquiler se calcula con la fecha de alquiler y la fecha de vencimiento y el precio de la pelicula cada dia es un 20% del precio de la pelicula
     public static double calcular_precio_alquiler(Connection conn,String fecha_inc, String fecha_fin, int idPelicula) throws SQLException {
         String sql = "SELECT Precio FROM DatosPelicula WHERE IDPelicula = ?";
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, idPelicula);
             ResultSet rs = pstmt.executeQuery();
             rs.next();
-            double precio = rs.getDouble("Precio");
+            double precio = rs.getDouble("Precio")*0.2;
             int dias = (int) ((Date.valueOf(fecha_fin).getTime() - Date.valueOf(fecha_inc).getTime()) / (1000 * 60 * 60 * 24));
             return precio * dias;
         }
