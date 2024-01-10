@@ -22,7 +22,7 @@ public class Main {
             while (opcion != 7) {
                 System.out.println("Selecciona una de las siguientes opciones:");
                 System.out.println("1. Borrar y crear tablas.");
-                System.out.println("2. Dar alta película.");
+                System.out.println("2. Menu Pelicula.");
                 System.out.println("3. Mostrar películas.");
                 System.out.println("4. Simular inserción de alquiler.");
                 System.out.println("5. Dar alta a un cliente.");
@@ -36,7 +36,7 @@ public class Main {
                         insertarDatosEjemplo(conn);
                         break;
                     case 2:
-                        //darAltaPelicula(conn, sc);
+                        Pelicula.menuPelicula(conn);
                         break;
                     case 3:
                         //mostrarPeliculas(conn);
