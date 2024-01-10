@@ -583,7 +583,7 @@ public static void simularInsercionAlquiler(Connection conn, Scanner sc) throws 
         
      }
 
-
+    //Esta mal la obtencion de la fecha y deberia comprobarse si existe el empleado y si esta dado de baja
     public static void darBajaEmpleado(Connection conn, Scanner sc) throws SQLException {
 
         System.out.println("Introduzca el DNI del empleado que quieras dar de baja:");
@@ -620,7 +620,7 @@ public static void simularInsercionAlquiler(Connection conn, Scanner sc) throws 
                     rs.getDate("FechaBaja"));
         }
     }
-
+    //El while esta mal
     public static void buscarEmpleado(Connection conn, Scanner sc) throws SQLException {
 
         int opcion = -1;
