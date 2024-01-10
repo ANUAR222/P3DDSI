@@ -242,7 +242,43 @@ public class Main {
 
 
 
-    public static void simularInsercionAlquiler(Connection conn, Scanner sc) throws SQLException {
+public static void simularInsercionAlquiler(Connection conn, Scanner sc) throws SQLException {
+        while (true) {
+            System.out.println("Seleccione una acción:");
+            System.out.println("1. Registrar nuevo alquiler");
+            System.out.println("2. Extender alquiler");
+            System.out.println("3. Acceder a película alquilada");
+            System.out.println("4. Precomprar película");
+            System.out.println("5. Volver al menú principal");
+            System.out.print("Opción: ");
+
+            int opcion = sc.nextInt();
+            sc.nextLine();  // Consumir el salto de línea pendiente
+
+            switch (opcion) {
+                case 1:
+                    registrarNuevoAlquiler(conn, sc);
+                    break;
+                case 2:
+                    simularExtenderAlquiler(conn, sc);
+                    break;
+                case 3:
+                    simularAccesoPelicula(conn, sc);
+                    break;
+                case 4:
+                    simularPrecompraPelicula(conn, sc);
+                    break;
+                case 5:
+                    return;  // Salir de la función y volver al menú principal
+                default:
+                    System.out.println("Opción no válida. Por favor, seleccione una opción válida.");
+                    break;
+            }
+        }
+    }
+
+
+    public static void registrarNuevoAlquiler(Connection conn, Scanner sc) throws SQLException {
         System.out.println("Introduce el correo electrónico del cliente:");
         String correo = sc.nextLine();
         System.out.println("Introduce el ID de la película:");
@@ -266,6 +302,108 @@ public class Main {
             System.out.println("Alquiler registrado con éxito.");
         }
     }
+
+    public static void simularExtenderAlquiler(Connection conn, Scanner sc) throws SQLException {
+        System.out.println("Introduce el ID de la película:");
+        int idPelicula = sc.nextInt();
+        sc.nextLine(); // Consumir el salto de línea pendiente
+        System.out.println("Introduce el correo electrónico del cliente:");
+        String correo = sc.nextLine();
+
+        if (!verificarAlquilerExistente(conn, correo, idPelicula)) {
+            System.out.println("Error: El cliente no tiene esta película alquilada.");
+            return;
+        }
+
+        System.out.println("Introduce la nueva fecha de vencimiento (YYYY-MM-DD):");
+        String nuevaFechaVencimiento = sc.nextLine();
+
+        extenderFechaAlquiler(conn, correo, idPelicula, nuevaFechaVencimiento);
+    }
+
+    private static boolean verificarAlquilerExistente(Connection conn, String correo, int idPelicula) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM DatosAlquiler WHERE CorreoElectronico = ? AND IDPelicula = ?";
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, correo);
+            pstmt.setInt(2, idPelicula);
+            ResultSet rs = pstmt.executeQuery();
+            rs.next();
+            return rs.getInt(1) > 0;
+        }
+    }
+
+    private static void extenderFechaAlquiler(Connection conn, String correo, int idPelicula, String nuevaFechaVencimiento) throws SQLException {
+        String sql = "UPDATE DatosAlquiler SET FechaVencimiento = ? WHERE CorreoElectronico = ? AND IDPelicula = ?";
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setDate(1, Date.valueOf(nuevaFechaVencimiento));
+            pstmt.setString(2, correo);
+            pstmt.setInt(3, idPelicula);
+            pstmt.executeUpdate();
+            System.out.println("Fecha de alquiler extendida con éxito.");
+        }
+    }
+
+    // Subsistema 2: Acceder a película
+
+    public static void simularAccesoPelicula(Connection conn, Scanner sc) throws SQLException {
+        System.out.println("Introduce el ID de la película:");
+        int idPelicula = sc.nextInt();
+        sc.nextLine(); // Consumir el salto de línea pendiente
+        System.out.println("Introduce el correo electrónico del cliente:");
+        String correo = sc.nextLine();
+
+        if (!verificarAlquilerExistente(conn, correo, idPelicula)) {
+            System.out.println("Error: El cliente no tiene esta película alquilada.");
+            return;
+        }
+
+        registrarAccesoPelicula(conn, correo, idPelicula);
+    }
+    private static void registrarAccesoPelicula(Connection conn, String correo, int idPelicula) throws SQLException {
+        String sql = "UPDATE DatosAlquiler SET FechaAcceso = CURRENT_DATE WHERE CorreoElectronico = ? AND IDPelicula = ?";
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, correo);
+            pstmt.setInt(2, idPelicula);
+            pstmt.executeUpdate();
+            System.out.println("Acceso a película registrado con éxito.");
+        }
+    }
+
+    // Subsistema 3: Precompra película
+    static void simularPrecompraPelicula(Connection conn, Scanner sc) throws SQLException {
+        System.out.println("Introduce el título de la película:");
+        String titulo = sc.nextLine();
+        System.out.println("Introduce el ID del cliente:");
+        String idCliente = sc.nextLine();
+
+        if (!verificarExistenciaPelicula(conn, titulo)) {
+            System.out.println("Error: La película no existe en el catálogo.");
+            return;
+        }
+
+        precomprarPelicula(conn, titulo, idCliente);
+    }
+
+    static boolean verificarExistenciaPelicula(Connection conn, String titulo) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM DatosPelicula WHERE Nombre = ?";
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, titulo);
+            ResultSet rs = pstmt.executeQuery();
+            rs.next();
+            return rs.getInt(1) > 0;
+        }
+    }
+
+    static void precomprarPelicula(Connection conn, String titulo, String idCliente) throws SQLException {
+        String sql = "INSERT INTO Precompras (TituloPelicula, IDCliente, FechaSolicitud) VALUES (?, ?, CURRENT_DATE)";
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, titulo);
+            pstmt.setString(2, idCliente);
+            pstmt.executeUpdate();
+            System.out.println("Precompra de película registrada con éxito.");
+        }
+    }
+
 
     static void insertarDatosTurno(Connection conn) throws SQLException {
 
