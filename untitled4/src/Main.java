@@ -293,23 +293,7 @@ public static void simularInsercionAlquiler(Connection conn, Scanner sc) throws 
         }
     }
 
-    public static void simularExtenderAlquiler(Connection conn, Scanner sc) throws SQLException {
-        System.out.println("Introduce el ID de la película:");
-        int idPelicula = sc.nextInt();
-        sc.nextLine(); // Consumir el salto de línea pendiente
-        System.out.println("Introduce el correo electrónico del cliente:");
-        String correo = sc.nextLine();
-
-        if (!verificarAlquilerExistente(conn, correo, idPelicula)) {
-            System.out.println("Error: El cliente no tiene esta película alquilada.");
-            return;
-        }
-
-        System.out.println("Introduce la nueva fecha de vencimiento (YYYY-MM-DD):");
-        String nuevaFechaVencimiento = sc.nextLine();
-
-        extenderFechaAlquiler(conn, correo, idPelicula, nuevaFechaVencimiento);
-    }
+   
 
     private static boolean verificarAlquilerExistente(Connection conn, String correo, int idPelicula) throws SQLException {
         String sql = "SELECT COUNT(*) FROM DatosAlquiler WHERE CorreoElectronico = ? AND IDPelicula = ?";
