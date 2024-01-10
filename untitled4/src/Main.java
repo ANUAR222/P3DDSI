@@ -1,6 +1,3 @@
-
-
-
 import java.nio.channels.SelectableChannel;
 import java.sql.*;
 import java.text.ParseException;
@@ -563,9 +560,19 @@ public static void simularInsercionAlquiler(Connection conn, Scanner sc) throws 
                     break;
             }
         }
+        
+        String sql = "UPDATE DatosEmpleado SET Nombre=?, Apellidos=?, Telefono=?, Direccion=?, NombreTurno=? WHERE DNI=?";
 
-        String sql = "UPDATE DatosEmpleado SET Nombre=nombre, Apellidos=apellidos, Telefono=telefono, Direccion=direccion, NombreTurno=turno WHERE DNI=dni";
-    }
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        pstmt.setString(1, nombre);
+        pstmt.setString(2, apellidos);
+        pstmt.setString(3, telefono);
+        pstmt.setString(4, direccion);
+        pstmt.setString(5, turno);
+        pstmt.setString(6, dni);
+        pstmt.executeUpdate();
+        
+     }
 
     public static void darBajaEmpleado(Connection conn, Scanner sc) throws SQLException {
 
@@ -575,7 +582,11 @@ public static void simularInsercionAlquiler(Connection conn, Scanner sc) throws 
         Date fecha = null;
         fecha.getTime();
 
-        String sql = "UPDATE DatosEmpleado SET FechaBaja=fecha WHERE DNI=dni";
+        String sql = "UPDATE DatosEmpleado SET FechaBaja=CURRENT_DATE WHERE DNI=?";
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        pstmt.setString(1, dni);
+        pstmt.executeUpdate();
+        
     }
 
     public static void mostrarEmpleado(Connection conn, Scanner sc) throws SQLException {
@@ -615,10 +626,11 @@ public static void simularInsercionAlquiler(Connection conn, Scanner sc) throws 
                 case 1:
                     System.out.println("Introduzca el nombre del empleado:");
                     String nombre = sc.nextLine();
-                    String sql = "SELECT * FROM DatosEmpleado WHERE Nombre=nombre";
+                    String sql = "SELECT * FROM DatosEmpleado WHERE Nombre=?";
 
-                    Statement stmt = conn.createStatement();
-                    ResultSet rs = stmt.executeQuery(sql);
+                    PreparedStatement pstmt = conn.prepareStatement(sql);
+                    pstmt.setString(1, nombre);
+                    ResultSet rs = pstmt.executeQuery(sql);
 
                     System.out.println("Resultados de empleados buscados por nombre:");
                     System.out.println("DNI\tNombre\tApellidos\tTelefono\tSueldo\tDireccion\tTurno\tFecha Baja");
@@ -637,10 +649,11 @@ public static void simularInsercionAlquiler(Connection conn, Scanner sc) throws 
                 case 2:
                     System.out.println("Introduzca los apellidos del empleado:");
                     String apellidos = sc.nextLine();
-                    String sql1 = "SELECT * FROM DatosEmpleado WHERE Apellidos=apellidos";
+                    String sql1 = "SELECT * FROM DatosEmpleado WHERE Apellidos=?";
 
-                    Statement stmt1 = conn.createStatement();
-                    ResultSet rs1 = stmt1.executeQuery(sql1);
+                    PreparedStatement pstmt1 = conn.prepareStatement(sql1);
+                    pstmt1.setString(1, apellidos);
+                    ResultSet rs1 = pstmt1.executeQuery(sql1);
 
                     System.out.println("Resultados de empleados buscados por apellidos:");
                     System.out.println("DNI\tNombre\tApellidos\tTelefono\tSueldo\tDireccion\tTurno\tFecha Baja");
@@ -659,10 +672,11 @@ public static void simularInsercionAlquiler(Connection conn, Scanner sc) throws 
                 case 3:
                     System.out.println("Introduzca el DNI del empleado:");
                     String dni = sc.nextLine();
-                    String sql2 = "SELECT * FROM DatosEmpleado WHERE DNI=dni";
+                    String sql2 = "SELECT * FROM DatosEmpleado WHERE DNI=?";
 
-                    Statement stmt2 = conn.createStatement();
-                    ResultSet rs2 = stmt2.executeQuery(sql2);
+                    PreparedStatement pstmt2 = conn.prepareStatement(sql2);
+                    pstmt2.setString(1, dni);
+                    ResultSet rs2 = pstmt2.executeQuery(sql2);
 
                     System.out.println("Resultados de empleados buscados por DNI:");
                     System.out.println("DNI\tNombre\tApellidos\tTelefono\tSueldo\tDireccion\tTurno\tFecha Baja");
