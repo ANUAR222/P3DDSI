@@ -281,7 +281,7 @@ public static void simularInsercionAlquiler(Connection conn, Scanner sc) throws 
         System.out.println("Introduce el precio del alquiler:");
         double precioAlquiler = sc.nextDouble();
 
-        String sql = "INSERT INTO DatosAlquila (CorreoElectronico, IDPelicula, FechaAlquiler, FechaVencimiento, PrecioAlquiler) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO DatosAlquiler (CorreoElectronico, IDPelicula, FechaAlquiler, FechaVencimiento, PrecioAlquiler) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, correo);
             pstmt.setInt(2, idPelicula);
