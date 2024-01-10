@@ -268,6 +268,7 @@ public static void simularInsercionAlquiler(Connection conn, Scanner sc) throws 
     }
 
 
+    //Comprobar correo y idpelicula, quitar try y fecha de vencimiento debe ser mayor que la de alquiler
     public static void registrarNuevoAlquiler(Connection conn, Scanner sc) throws SQLException {
         System.out.println("Introduce el correo electrónico del cliente:");
         String correo = sc.nextLine();
@@ -294,7 +295,7 @@ public static void simularInsercionAlquiler(Connection conn, Scanner sc) throws 
     }
 
    
-
+    //Quitar try
     private static boolean verificarAlquilerExistente(Connection conn, String correo, int idPelicula) throws SQLException {
         String sql = "SELECT COUNT(*) FROM DatosAlquiler WHERE CorreoElectronico = ? AND IDPelicula = ?";
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -305,6 +306,7 @@ public static void simularInsercionAlquiler(Connection conn, Scanner sc) throws 
             return rs.getInt(1) > 0;
         }
     }
+
 
     public static void simularExtenderAlquiler(Connection conn, Scanner sc) throws SQLException {
         System.out.println("Introduce el ID de la película:");
