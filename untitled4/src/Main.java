@@ -322,14 +322,33 @@ public static void simularInsercionAlquiler(Connection conn, Scanner sc) throws 
         }
     }
 
-    private static void extenderFechaAlquiler(Connection conn, String correo, int idPelicula, String nuevaFechaVencimiento) throws SQLException {
-        String sql = "UPDATE DatosAlquiler SET FechaVencimiento = ? WHERE CorreoElectronico = ? AND IDPelicula = ?";
+    public static void simularExtenderAlquiler(Connection conn, Scanner sc) throws SQLException {
+        System.out.println("Introduce el ID de la película:");
+        int idPelicula = sc.nextInt();
+        sc.nextLine(); // Consumir el salto de línea pendiente
+        System.out.println("Introduce el correo electrónico del cliente:");
+        String correo = sc.nextLine();
+
+        if (!verificarAlquilerExistente(conn, correo, idPelicula)) {
+            System.out.println("Error: El cliente no tiene esta película alquilada.");
+            return;
+        }
+        String nuevaFechaVencimiento;
+        do {
+            System.out.println("Introduce la nueva fecha de vencimiento (YYYY-MM-DD):");
+            nuevaFechaVencimiento = sc.nextLine();
+        }while (comprobarFechaVencimiento(conn, correo, idPelicula, nuevaFechaVencimiento));
+        extenderFechaAlquiler(conn, correo, idPelicula, nuevaFechaVencimiento);
+    }
+    private static boolean comprobarFechaVencimiento(Connection conn, String correo, int idPelicula, String nuevaFechaVencimiento) throws SQLException {
+        String sql = "SELECT FechaVencimiento FROM DatosAlquiler WHERE CorreoElectronico = ? AND IDPelicula = ?";
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setDate(1, Date.valueOf(nuevaFechaVencimiento));
-            pstmt.setString(2, correo);
-            pstmt.setInt(3, idPelicula);
-            pstmt.executeUpdate();
-            System.out.println("Fecha de alquiler extendida con éxito.");
+            pstmt.setString(1, correo);
+            pstmt.setInt(2, idPelicula);
+            ResultSet rs = pstmt.executeQuery();
+            rs.next();
+            Date fechaVencimiento = rs.getDate("FechaVencimiento");
+            return fechaVencimiento.after(Date.valueOf(nuevaFechaVencimiento));
         }
     }
 
