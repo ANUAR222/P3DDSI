@@ -323,6 +323,8 @@ public static void simularInsercionAlquiler(Connection conn, Scanner sc) throws 
         }while (comprobarFechaVencimiento(conn, correo, idPelicula, nuevaFechaVencimiento));
         extenderFechaAlquiler(conn, correo, idPelicula, nuevaFechaVencimiento);
     }
+
+    //Quitar try
     private static boolean comprobarFechaVencimiento(Connection conn, String correo, int idPelicula, String nuevaFechaVencimiento) throws SQLException {
         String sql = "SELECT FechaVencimiento FROM DatosAlquiler WHERE CorreoElectronico = ? AND IDPelicula = ?";
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -337,6 +339,7 @@ public static void simularInsercionAlquiler(Connection conn, Scanner sc) throws 
 
     // Subsistema 2: Acceder a película
 
+    //Comprobar correo y idpelicula
     public static void simularAccesoPelicula(Connection conn, Scanner sc) throws SQLException {
         System.out.println("Introduce el ID de la película:");
         int idPelicula = sc.nextInt();
@@ -351,6 +354,8 @@ public static void simularInsercionAlquiler(Connection conn, Scanner sc) throws 
 
         registrarAccesoPelicula(conn, correo, idPelicula);
     }
+
+    //Quitar try
     private static void registrarAccesoPelicula(Connection conn, String correo, int idPelicula) throws SQLException {
         String sql = "UPDATE DatosAlquiler SET FechaAcceso = CURRENT_DATE WHERE CorreoElectronico = ? AND IDPelicula = ?";
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -362,6 +367,7 @@ public static void simularInsercionAlquiler(Connection conn, Scanner sc) throws 
     }
 
     // Subsistema 3: Precompra película
+    //Comprobar correo y idpelicula y usar id no nombre
     static void simularPrecompraPelicula(Connection conn, Scanner sc) throws SQLException {
         System.out.println("Introduce el título de la película:");
         String titulo = sc.nextLine();
@@ -375,7 +381,7 @@ public static void simularInsercionAlquiler(Connection conn, Scanner sc) throws 
 
         precomprarPelicula(conn, titulo, idCliente);
     }
-
+    //Si usas la id en la anterior esta funcion queda sin uso
     static boolean verificarExistenciaPelicula(Connection conn, String titulo) throws SQLException {
         String sql = "SELECT COUNT(*) FROM DatosPelicula WHERE Nombre = ?";
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -386,6 +392,7 @@ public static void simularInsercionAlquiler(Connection conn, Scanner sc) throws 
         }
     }
 
+    //Quitar try y esa tabla no existe
     static void precomprarPelicula(Connection conn, String titulo, String idCliente) throws SQLException {
         String sql = "INSERT INTO Precompras (TituloPelicula, IDCliente, FechaSolicitud) VALUES (?, ?, CURRENT_DATE)";
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -436,6 +443,7 @@ public static void simularInsercionAlquiler(Connection conn, Scanner sc) throws 
 
     }
 
+
     static void insertarDatosTurno(Connection conn) throws SQLException {
 
         String insertDatosTurno = "INSERT INTO DatosTurno (NombreTurno, HoraEntrada, HoraSalida, SueldoHora, SueldoTotal) VALUES (?, ?, ?, ?, ?)";
@@ -469,7 +477,7 @@ public static void simularInsercionAlquiler(Connection conn, Scanner sc) throws 
 
         
     }
-    
+    //No hace falta pedir telefono y se deberia comprobar que no exista un empleado con ese dni ya, el while del turno esta mal
     public static void darAltaEmpleado(Connection conn, Scanner sc) throws SQLException {
 
         System.out.println("Introduzca su DNI:");
@@ -522,6 +530,7 @@ public static void simularInsercionAlquiler(Connection conn, Scanner sc) throws 
 
     }
 
+    //Esta mal entero segun esto se debe modificar todos los campos siempre
     public static void modificarEmpleado(Connection conn, Scanner sc) throws SQLException {
 
         System.out.println("Introduzca el DNI del empleado que quieras modificar:");
@@ -573,6 +582,7 @@ public static void simularInsercionAlquiler(Connection conn, Scanner sc) throws 
         pstmt.executeUpdate();
         
      }
+
 
     public static void darBajaEmpleado(Connection conn, Scanner sc) throws SQLException {
 
