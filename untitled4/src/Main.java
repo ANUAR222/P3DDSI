@@ -758,6 +758,18 @@ public static void simularInsercionAlquiler(Connection conn, Scanner sc) throws 
         }
         return true;
     }
+     public static boolean comprobarBajaCliente(Connection conn, String correo) throws SQLException{
+        String sqlComprobarBaja = "SELECT FechaBaja FROM DatosCliente WHERE CorreoElectronico = ?";
+        PreparedStatement comprobarBaja = conn.prepareStatement(sqlComprobarBaja);
+        comprobarBaja.setInt(1, correo);
+        ResultSet resultComprobarBaja = comprobarBaja.executeQuery();
+
+        if (resultComprobarBaja.next()) {
+            Date fechaBaja = resultComprobarBaja.getDate("FechaBaja");
+            return fechaBaja != null;
+        }
+        return true;
+    }
     public static void bajaPelicula(Connection conn) throws SQLException{
         conn.setAutoCommit(false);
         Savepoint saveBajaPelicula=conn.setSavepoint();
