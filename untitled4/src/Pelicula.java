@@ -5,6 +5,82 @@ import java.time.LocalDate;
 import java.util.Scanner;
 @SuppressWarnings("SqlResolve")
 public class Pelicula {
+
+    public static void menuPelicula(Connection conn){
+        Scanner sc = new Scanner(System.in);
+        int opcion;
+
+        while (true) {
+            System.out.println("Menu Pelicula General");
+            System.out.println("1. Películas");
+            System.out.println("2. Géneros y Actores");
+            System.out.println("3. Salir");
+            System.out.print("Seleccione una opción: ");
+
+            opcion = sc.nextInt();
+            sc.nextLine();
+
+            switch (opcion) {
+                case 1:
+
+                    break;
+
+                case 2:
+
+                    break;
+
+                case 3:
+                   return;
+
+
+            }
+        }
+    }
+
+    public static void menuPelicula2(Connection conn) throws SQLException, ParseException {
+        Scanner sc = new Scanner(System.in);
+        int opcion;
+
+        while (true) {
+            System.out.println("Menu Pelicula");
+            System.out.println("1. Alta Pelicula");
+            System.out.println("2. Mostrar pelicula por id");
+            System.out.println("3. Baja Pelicula");
+            System.out.println("4. Modificar pelicula");
+            System.out.println("5. Salir");
+            System.out.print("Seleccione una opción: ");
+
+            opcion = sc.nextInt();
+            sc.nextLine();
+
+            switch (opcion) {
+                case 1:
+                    insertarPelicula(conn);
+                    break;
+
+                case 2:
+                    System.out.println("Introduce la id");
+                    int idPelicula = sc.nextInt();
+                    if(!comprobarIdPelicula(conn, idPelicula)){
+                        System.out.println("Id incorrecto");
+                        break;
+                    }
+                    mostrarPelicula(conn, idPelicula);
+                    break;
+
+                case 3:
+                    bajaPelicula(conn);
+                    break;
+
+                case 4:
+                    modificarPelicula(conn);
+                    break;
+
+                case 5:
+                    return;
+            }
+        }
+    }
     public static void insertarPelicula(Connection conn) throws SQLException, ParseException {
         conn.setAutoCommit(false);
         Savepoint saveInsertPelicula= conn.setSavepoint();
@@ -56,6 +132,7 @@ public class Pelicula {
         conn.setAutoCommit(true);
     }
 
+    //True si existe la pelicula
     public static boolean comprobarIdPelicula(Connection conn, int idPelicula) throws SQLException{
         String sqlComprobar = "SELECT COUNT(*) FROM DatosPelicula WHERE IDPelicula = ?";
         PreparedStatement comprobar = conn.prepareStatement(sqlComprobar);
@@ -71,6 +148,7 @@ public class Pelicula {
         else return false;
     }
 
+    //True si esta de baja
     public static boolean comprobarBajaPelicula(Connection conn, int idpelicula) throws SQLException{
         String sqlComprobarBaja = "SELECT FechaBaja FROM DatosPelicula WHERE IDPelicula = ?";
         PreparedStatement comprobarBaja = conn.prepareStatement(sqlComprobarBaja);
@@ -108,6 +186,8 @@ public class Pelicula {
             System.out.println("Reseñas: " + resultSet.getInt("Reseñas"));
 
         }
+        mostrarGenerosPelicula(conn, idPelicula);
+        mostrarActoresPelicula(conn, idPelicula);
     }
     public static void bajaPelicula(Connection conn) throws SQLException{
         conn.setAutoCommit(false);
@@ -279,6 +359,19 @@ public class Pelicula {
     }
 
     public static void mostrarGenerosPelicula(Connection conn, int idPelicula) throws SQLException{
+        String sqlComprobar = "SELECT COUNT(*) FROM PerteneceA WHERE IDPelicula = ?";
+        PreparedStatement comprobar = conn.prepareStatement(sqlComprobar);
+        comprobar.setInt(1, idPelicula);
+        ResultSet resultComprobar = comprobar.executeQuery();
+        if(resultComprobar.next()){
+            if(resultComprobar.getInt(1)==0){
+                System.out.println("La pelicula no tiene generos asignados");
+            }
+        }
+        else {
+            System.out.println("Fallo comprobacion generos");
+            return;
+        }
         String sqlSelect = "SELECT IDGenero FROM PerteneceA WHERE IDPelicula = ?";
         PreparedStatement select = conn.prepareStatement(sqlSelect);
         ResultSet resultSelect = select.executeQuery();
@@ -295,6 +388,19 @@ public class Pelicula {
         }
     }
     public static void mostrarActoresPelicula(Connection conn, int idPelicula) throws SQLException{
+        String sqlComprobar = "SELECT COUNT(*) FROM Actua WHERE IDPelicula = ?";
+        PreparedStatement comprobar = conn.prepareStatement(sqlComprobar);
+        comprobar.setInt(1, idPelicula);
+        ResultSet resultComprobar = comprobar.executeQuery();
+        if(resultComprobar.next()){
+            if(resultComprobar.getInt(1)==0){
+                System.out.println("La pelicula no tiene actores asignados");
+            }
+        }
+        else {
+            System.out.println("Fallo comprobacion actores");
+            return;
+        }
         String sqlSelect = "SELECT NombreActor FROM Actua WHERE IDPelicula = ?";
         PreparedStatement select = conn.prepareStatement(sqlSelect);
         ResultSet resultSelect = select.executeQuery();
