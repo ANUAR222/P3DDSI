@@ -392,23 +392,12 @@ public static void simularInsercionAlquiler(Connection conn, Scanner sc) throws 
         System.out.println("Introduce el ID del cliente:");
         String idCliente = sc.nextLine();
 
-        if (!verificarExistenciaPelicula(conn, id)) {
-            System.out.println("Error: La película no existe en el catálogo.");
-            return;
-        }
+
 
         precomprarPelicula(conn, id, idCliente);
     }
 
-    static boolean verificarExistenciaPelicula(Connection conn, String titulo) throws SQLException {
-        String sql = "SELECT COUNT(*) FROM DatosPelicula WHERE Nombre = ?";
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, titulo);
-            ResultSet rs = pstmt.executeQuery();
-            rs.next();
-            return rs.getInt(1) > 0;
-        }
-    }
+
     //haz haz un alquiler que sea dentro de unaño
     static void precomprarPelicula(Connection conn, String id_pelicula, String idCliente) throws SQLException {
         String sql = "INSERT INTO DatosAlquiler (CorreoElectronico, IDPelicula, FechaAlquiler, FechaVencimiento, PrecioAlquiler) VALUES (?, ?, ?, ?, ?)";
