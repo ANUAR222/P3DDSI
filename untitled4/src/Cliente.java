@@ -144,30 +144,71 @@ public class Cliente {
     }
     //Comprobar correo y baja
     static void modificarCliente(Connection conn, Scanner sc) throws SQLException {
-
+        conn.setAutoCommit(false);
+        Savepoint saveUpdatePelicula=conn.setSavepoint();
         System.out.println("Introduce el correo electrónico del cliente a modificar:");
         String correo = sc.nextLine();
         while (!Alquiler.comprobarExisteCliente(conn, correo) || comprobarBajaCliente(conn, correo)) {
             System.out.println("El correo no existe o ya está dado de baja, introduce otro:");
             correo = sc.nextLine();
         }
-        System.out.println("Introduce el nombre nuevo del cliente:");
-        String nombre = sc.nextLine();
-        System.out.println("Introduce los apellidos nuevos del cliente:");
-        String apellidos = sc.nextLine();
-        System.out.println("Introduce el teléfono nuevo del cliente:");
-        String telefono = sc.nextLine();
-        String sql = "UPDATE DatosCliente SET Nombre=?, Apellidos=?, Telefono=? WHERE CorreoElectronico=?";
-        PreparedStatement pstmt = conn.prepareStatement(sql);
-        pstmt.setString(1, nombre);
-        pstmt.setString(2, apellidos);
-        pstmt.setString(3, telefono);
-        pstmt.setString(4, correo);
-        pstmt.executeUpdate();
+
+        System.out.println("¿Que campo desea modificar?:\n1. Nombre\n2. Apellidos\n3. Telefono\n4. Finalizar");
+        int opcion = sc.nextInt();
+        sc.nextLine();
+        PreparedStatement updateCliente;
+        String sqlUpdateCliente;
+        while (opcion!=4) {
+            switch (opcion) {
+                case 1:
+                    sqlUpdateCliente = "UPDATE DatosCliente SET Nombre = ? WHERE CorreoElectronico = ?";
+                    updateCliente = conn.prepareStatement(sqlUpdateCliente);
+                    updateCliente.setString(2, correo);
+                    System.out.println("Introduce el nombre");
+                    updateCliente.setString(1, sc.nextLine());
+                    updateCliente.execute();
+                    break;
+                case 2:
+                    sqlUpdateCliente = "UPDATE DatosCliente SET Apellido = ? WHERE CorreoElectronico = ?";
+                    updateCliente = conn.prepareStatement(sqlUpdateCliente);
+                    updateCliente.setString(2, correo);
+                    System.out.println("Introduce los apellidos");
+                    updateCliente.setString(1, sc.nextLine());
+                    updateCliente.execute();
+                    break;
+                case 3:
+                    sc.nextLine();
+                    sqlUpdateCliente = "UPDATE DatosCliente SET Telefono = ? WHERE CorreoElectronico = ?";
+                    updateCliente = conn.prepareStatement(sqlUpdateCliente);
+                    updateCliente.setString(2, correo);
+                    System.out.println("Introduce el telefono");
+                    updateCliente.setString(1, sc.nextLine());
+                    updateCliente.execute();
+                    break;
+            }
+            System.out.println("¿Que campo desea modificar?:\n1. Nombre\n2. Apellidos\n3. Telefono\n4. Finalizar");
+            opcion = sc.nextInt();
+            sc.nextLine();
+
+        }
+
+        System.out.println("¿Quieres confirmar los cambios?\n1. Si\n2. No");
+        switch (sc.nextInt()){
+            case 1:
+                conn.commit();
+                System.out.println("Cambios aplicados");
+                break;
+            case 2:
+                conn.rollback(saveUpdatePelicula);
+                System.out.println("Cambios revertidos");
+                break;
+        }
+        sc.nextLine();
+        conn.setAutoCommit(true);
+
 
 
     }
-    //Comprobar corrro baja y idpelicula
     public static void mostrarPeliculasAlquiladas(Connection conn, Scanner sc) throws SQLException {
         System.out.println("Introduzca el correo electronico del cliente que quieras ver los alquileres:");
         String correo = sc.nextLine();
