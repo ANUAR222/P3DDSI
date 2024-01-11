@@ -1,7 +1,7 @@
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.Scanner;
-
+@SuppressWarnings("SqlResolve")
 public class Alquiler {
     public static void simularInsercionAlquiler(Connection conn, Scanner sc) throws SQLException {
         while (true) {

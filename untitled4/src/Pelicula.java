@@ -6,12 +6,12 @@ import java.util.Scanner;
 @SuppressWarnings("SqlResolve")
 public class Pelicula {
 
-    public static void menuPelicula(Connection conn){
+    public static void menuPelicula(Connection conn) throws SQLException, ParseException {
         Scanner sc = new Scanner(System.in);
         int opcion;
 
         while (true) {
-            System.out.println("Menu Pelicula General");
+            System.out.println("\nMenu Pelicula General");
             System.out.println("1. Películas");
             System.out.println("2. Géneros y Actores");
             System.out.println("3. Salir");
@@ -22,7 +22,7 @@ public class Pelicula {
 
             switch (opcion) {
                 case 1:
-
+                    menuPelicula2(conn);
                     break;
 
                 case 2:
@@ -42,7 +42,7 @@ public class Pelicula {
         int opcion;
 
         while (true) {
-            System.out.println("Menu Pelicula");
+            System.out.println("\nMenu Pelicula");
             System.out.println("1. Alta Pelicula");
             System.out.println("2. Mostrar pelicula por id");
             System.out.println("3. Baja Pelicula");
@@ -62,7 +62,6 @@ public class Pelicula {
                     System.out.println("Introduce la id");
                     int idPelicula = sc.nextInt();
                     if(!comprobarIdPelicula(conn, idPelicula)){
-                        System.out.println("Id incorrecto");
                         break;
                     }
                     mostrarPelicula(conn, idPelicula);
@@ -180,7 +179,7 @@ public class Pelicula {
             System.out.println("Precio: " + resultSet.getDouble("Precio"));
             System.out.println("Fecha Estreno: " + resultSet.getDate("FechaEstreno"));
             System.out.println("Fecha Alta: " + resultSet.getDate("FechaAlta"));
-            System.out.println("Fecha Baja" + resultSet.getDate("FechaBaja"));
+            System.out.println("Fecha Baja: " + resultSet.getDate("FechaBaja"));
             System.out.println("Sinopsis: " + resultSet.getString("Sinopsis"));
             System.out.println("Calificacion: " + resultSet.getDouble("Calificacion"));
             System.out.println("Reseñas: " + resultSet.getInt("Reseñas"));
@@ -222,7 +221,7 @@ public class Pelicula {
         conn.setAutoCommit(false);
         Savepoint saveUpdatePelicula=conn.setSavepoint();
         Scanner sc= new Scanner(System.in);
-        System.out.println("Introduce la id de la pelicula a dar de baja");
+        System.out.println("Introduce la id de la pelicula a modificar");
         int idPelicula= sc.nextInt();
         if(!comprobarIdPelicula(conn, idPelicula)) {
             conn.rollback(saveUpdatePelicula);
@@ -261,14 +260,11 @@ public class Pelicula {
                     updatePelicula.execute();
                     break;
                 case 3:
+                    sc.nextLine();
                     sqlUpdatePelicula = "UPDATE DatosPelicula SET FechaEstreno = ? WHERE IDPelicula = ?";
                     updatePelicula = conn.prepareStatement(sqlUpdatePelicula);
                     updatePelicula.setInt(2, idPelicula);
-                    System.out.println("Introduce la Fecha de Estreno");
-                    SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
-                    String fechaString = sc.nextLine();
-                    // Convertir el String a Date
-                    Date fechaEstreno = (Date) formato.parse(fechaString);
+                    Date fechaEstreno = Main.obtenerFechaDesdeScanner(sc);
                     updatePelicula.setDate(1, fechaEstreno);
                     updatePelicula.execute();
                     break;
@@ -317,9 +313,11 @@ public class Pelicula {
         switch (sc.nextInt()){
             case 1:
                 conn.commit();
+                System.out.println("Cambios confirmados");
                 break;
             case 2:
                 conn.rollback(saveUpdatePelicula);
+                System.out.println("Cambios cancelados");
                 break;
         }
         conn.setAutoCommit(true);
@@ -366,6 +364,7 @@ public class Pelicula {
         if(resultComprobar.next()){
             if(resultComprobar.getInt(1)==0){
                 System.out.println("La pelicula no tiene generos asignados");
+                return;
             }
         }
         else {
@@ -392,20 +391,23 @@ public class Pelicula {
         PreparedStatement comprobar = conn.prepareStatement(sqlComprobar);
         comprobar.setInt(1, idPelicula);
         ResultSet resultComprobar = comprobar.executeQuery();
-        if(resultComprobar.next()){
-            if(resultComprobar.getInt(1)==0){
-                System.out.println("La pelicula no tiene actores asignados");
+        if (resultComprobar.next()) {
+            if (resultComprobar.getInt(1) == 0) {
+                System.out.println("La película no tiene actores asignados");
+                return;
             }
-        }
-        else {
-            System.out.println("Fallo comprobacion actores");
+        } else {
+            System.out.println("Fallo comprobación actores");
             return;
         }
+
         String sqlSelect = "SELECT NombreActor FROM Actua WHERE IDPelicula = ?";
         PreparedStatement select = conn.prepareStatement(sqlSelect);
+        select.setInt(1, idPelicula);  // Agrega este setInt para el segundo PreparedStatement
         ResultSet resultSelect = select.executeQuery();
-        System.out.println("Los actores que participan en esta pelicula con id: " + idPelicula + " son:");
-        while (resultSelect.next()){
+
+        System.out.println("Los actores que participan en esta película con ID: " + idPelicula + " son:");
+        while (resultSelect.next()) {
             System.out.println(resultSelect.getString("NombreActor"));
         }
     }

@@ -4,14 +4,13 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Scanner;
 import java.time.LocalDate;
-
 import java.sql.Date;
 
 
 
 public class Main {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws SQLException {
         Scanner sc = new Scanner(System.in);
         Connection conn = null;
 
@@ -60,15 +59,27 @@ public class Main {
             }
         } catch (SQLException e) {
             System.out.println("Error de base de datos: " + e.getMessage());
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
         } finally {
-            if (conn != null) {
+            if (!conn.isClosed()) {
                 try {
                     conn.close();
+                    System.out.println("Conexion cerrada por error en la aplicacion");
                 } catch (SQLException e) {
                     System.out.println("Error al cerrar la conexión: " + e.getMessage());
                 }
             }
         }
+    }
+
+    public static Date obtenerFechaDesdeScanner(Scanner scanner) throws ParseException {
+        System.out.print("Ingrese la fecha (formato dd/MM/yyyy): ");
+        String fechaString = scanner.nextLine();
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        java.util.Date utilDate = dateFormat.parse(fechaString);
+        return new Date(utilDate.getTime());
     }
 
     public static Connection conectarBaseDeDatos(Scanner sc) throws SQLException {
@@ -77,7 +88,38 @@ public class Main {
         System.out.println("Introduce la contraseña:");
         String contrasenia = sc.next();
         String url = "jdbc:oracle:thin:@//oracle0.ugr.es:1521/practbd.oracle0.ugr.es";
-        return DriverManager.getConnection(url, usuario, contrasenia);
+        DriverManager.registerDriver(new oracle.jdbc.driver.OracleDriver());
+        Connection conn=null;
+        try {
+            conn = DriverManager.getConnection
+                    (url, usuario, contrasenia);
+        }
+        catch (SQLException e){
+            //Si el fallo es un usuario o contraseña incorrecto se da un intento mas
+            if(e.getErrorCode()==1017){
+                sc.nextLine();
+                System.out.println("Fallo al iniciar sesion: usuario o contraseña incorrectos");
+                System.out.println("Introduce el usuario");
+                usuario= sc.nextLine();
+                System.out.println("Introduce la contraseña");
+                contrasenia= sc.nextLine();
+                try {
+                    conn = DriverManager.getConnection
+                            ("jdbc:oracle:thin:@//oracle0.ugr.es:1521/practbd.oracle0.ugr.es", usuario, contrasenia);
+                }
+                catch(SQLException e1){
+                    System.err.println(e1.getMessage());
+                    System.exit(-1);
+                }
+            }
+            else{
+                System.err.println(e.getMessage());
+                System.exit(-2);
+            }
+        }
+
+        System.out.println("Conexion realizada");
+        return conn;
     }
 
     public static void crearTablas(Connection conn) throws SQLException {
@@ -673,8 +715,9 @@ static void menuCliente(Connection conn, Scanner sc) throws SQLException {
     public static void salir(Connection conn) {
         System.out.println("Saliendo...");
         try {
-            if (conn != null) {
+            if (!conn.isClosed()) {
                 conn.close();
+                System.out.println("Conexion cerrada");
             }
         } catch (SQLException e) {
             System.out.println("Error al cerrar la conexión: " + e.getMessage());
