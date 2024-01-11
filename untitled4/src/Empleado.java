@@ -196,51 +196,68 @@ public class Empleado {
         System.out.println("Introduzca el DNI del empleado que quieras modificar:");
         String dni = sc.nextLine();
 
-        System.out.println("Introduzca su nombre:");
-        String nombre = sc.nextLine();
-        System.out.println("Introduzca sus apellidos:");
-        String apellidos = sc.nextLine();
-        System.out.println("Introduzca su telefono:");
-        String telefono = sc.nextLine();
-        System.out.println("Introduzca su direccion:");
-        String direccion = sc.nextLine();
-        int opcion = -1;
-        String turno=null;
-        while (opcion != 3) {
+        boolean existe;
 
-            System.out.println("Seleccione una de las siguientes opciones para su turno:");
-            System.out.println("1. Turno Matutino.");
-            System.out.println("2. Turno Vespertino.");
-            System.out.println("3. Turno Nocturno.");
+        do {
 
-            opcion = sc.nextInt();
-            switch (opcion) {
-                case 1:
-                    turno="Turno Matutino";
-                    break;
-                case 2:
-                    turno="Turno Vespertino";
-                    break;
-                case 3:
-                    turno="Turno Nocturno";
-                    break;
-                default:
-                    System.out.println("Opción no válida.");
-                    break;
+            existe = existeEmpleado(conn, dni);
+
+            if (existe) {
+
+                System.out.println("Usuario existente.");
+                System.out.println("Introduzca su nombre:");
+                String nombre = sc.nextLine();
+                System.out.println("Introduzca sus apellidos:");
+                String apellidos = sc.nextLine();
+                System.out.println("Introduzca su telefono:");
+                String telefono = sc.nextLine();
+                System.out.println("Introduzca su direccion:");
+                String direccion = sc.nextLine();
+                int opcion = -1;
+                String turno = null;
+                while (opcion != 3) {
+
+                    System.out.println("Seleccione una de las siguientes opciones para su turno:");
+                    System.out.println("1. Turno Matutino.");
+                    System.out.println("2. Turno Vespertino.");
+                    System.out.println("3. Turno Nocturno.");
+
+                    opcion = sc.nextInt();
+                    switch (opcion) {
+                        case 1:
+                            turno = "Turno Matutino";
+                            break;
+                        case 2:
+                            turno = "Turno Vespertino";
+                            break;
+                        case 3:
+                            turno = "Turno Nocturno";
+                            break;
+                        default:
+                            System.out.println("Opción no válida.");
+                            break;
+                    }
+                }
+
+                String sql = "UPDATE DatosEmpleado SET Nombre=?, Apellidos=?, Telefono=?, Direccion=?, NombreTurno=? WHERE DNI=?";
+
+                PreparedStatement pstmt = conn.prepareStatement(sql);
+                pstmt.setString(1, nombre);
+                pstmt.setString(2, apellidos);
+                pstmt.setString(3, telefono);
+                pstmt.setString(4, direccion);
+                pstmt.setString(5, turno);
+                pstmt.setString(6, dni);
+                pstmt.executeUpdate();
+
+            } else {
+
+                System.out.println("Ese DNI no está registrado.");
+                System.out.println("Introduzca de nuevo el DNI:");
+                dni = sc.nextLine();
+
             }
-        }
-
-        String sql = "UPDATE DatosEmpleado SET Nombre=?, Apellidos=?, Telefono=?, Direccion=?, NombreTurno=? WHERE DNI=?";
-
-        PreparedStatement pstmt = conn.prepareStatement(sql);
-        pstmt.setString(1, nombre);
-        pstmt.setString(2, apellidos);
-        pstmt.setString(3, telefono);
-        pstmt.setString(4, direccion);
-        pstmt.setString(5, turno);
-        pstmt.setString(6, dni);
-        pstmt.executeUpdate();
-
+        }while (!existe);
     }
 
     //Esta mal la obtencion de la fecha y deberia comprobarse si existe el empleado y si esta dado de baja
