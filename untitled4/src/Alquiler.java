@@ -74,7 +74,7 @@ public class Alquiler {
                         return;
                     }
                 }
-            } while (Main.comprobarBajaCliente(conn, correo) || !comprobarExisteCliente(conn, correo));
+            } while (Cliente.comprobarBajaCliente(conn, correo) || !comprobarExisteCliente(conn, correo));
 
             do {
                 System.out.println("Introduce el ID de la película:");
@@ -178,7 +178,7 @@ public class Alquiler {
                 System.out.println("Error: El cliente no existe.");
                 return;
             }
-        }while (!comprobarExisteCliente(conn, correo) || Main.comprobarBajaCliente(conn, correo));
+        }while (!comprobarExisteCliente(conn, correo) || Cliente.comprobarBajaCliente(conn, correo));
         int idPelicula;
         do {
             System.out.println("Introduce el ID de la película:");
