@@ -78,9 +78,9 @@ public class Empleado {
 
     }
 
-    public static boolean existeEmpleado(Connection conn, Scanner sc, String dni) throws SQLException {
+    public static boolean existeEmpleado(Connection conn, String dni) throws SQLException {
 
-        boolean existe=false;
+        boolean existe;
 
         String sql="SELECT * FROM DatosEmpleado Where DNI=?";
         PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -109,7 +109,7 @@ public class Empleado {
 
         do{
 
-            existe=existeEmpleado(conn,sc,dni);
+            existe=existeEmpleado(conn,dni);
 
             if (existe) {
 
