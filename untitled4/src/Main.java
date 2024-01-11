@@ -73,12 +73,27 @@ public class Main {
         }
     }
 
-    public static Date obtenerFechaDesdeScanner(Scanner scanner) throws ParseException {
-        System.out.print("Ingrese la fecha (formato dd/MM/yyyy): ");
-        String fechaString = scanner.nextLine();
+    public static Date obtenerFechaDesdeScanner(Connection conn, Scanner scanner)  {
 
+
+        java.util.Date utilDate = null;
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-        java.util.Date utilDate = dateFormat.parse(fechaString);
+        String fechaString;
+        do {
+            scanner.nextLine();
+            System.out.print("Ingrese la fecha (formato dd/MM/yyyy): ");
+            fechaString = scanner.nextLine();
+            try {
+                utilDate = dateFormat.parse(fechaString);
+            } catch (ParseException e) {
+                System.out.println("Fecha en formato incorrecto.\nSi quieres salir del programa introduce 1, si no introduce otro numero:");
+                if (scanner.nextInt() == 1) {
+                    salir(conn);
+                    System.out.println("Cierre aplicacion fecha incorrecta");
+                    System.exit(-3);
+                }
+            }
+        }while (utilDate==null);
         return new Date(utilDate.getTime());
     }
 

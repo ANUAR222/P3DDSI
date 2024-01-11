@@ -26,7 +26,7 @@ public class Pelicula {
                     break;
 
                 case 2:
-
+                    menuGeneroActor(conn);
                     break;
 
                 case 3:
@@ -61,6 +61,7 @@ public class Pelicula {
                 case 2:
                     System.out.println("Introduce la id");
                     int idPelicula = sc.nextInt();
+                    sc.nextLine();
                     if(!comprobarIdPelicula(conn, idPelicula)){
                         break;
                     }
@@ -76,6 +77,49 @@ public class Pelicula {
                     break;
 
                 case 5:
+                    return;
+            }
+        }
+    }
+
+    public static void menuGeneroActor(Connection conn) throws SQLException {
+        Scanner sc = new Scanner(System.in);
+        int opcion;
+
+        while (true) {
+            System.out.println("\nMenu Genero/Actor");
+            System.out.println("1. Añadir Genero");
+            System.out.println("2. Añadir Actor");
+            System.out.println("3. Mostrar Generos");
+            System.out.println("4. Mostrar Actores");
+            System.out.println("5. Añadir Genero o Actor a Pelicula");
+            System.out.println("6. Salir");
+            System.out.print("Seleccione una opción: ");
+
+            opcion = sc.nextInt();
+            sc.nextLine();
+
+            switch (opcion) {
+                case 1:
+                    insertarGenero(conn);
+                    break;
+
+                case 2:
+                    insertarActor(conn);
+                    break;
+
+                case 3:
+                    mostrarGenero(conn);
+                    break;
+
+                case 4:
+                    mostrarActor(conn);
+                    break;
+
+                case 5:
+                    añadirGeneroActor(conn);
+                    break;
+                case 6:
                     return;
             }
         }
@@ -99,15 +143,12 @@ public class Pelicula {
         insertPelicula.setDate(4, Date.valueOf(fechaAlta));
         System.out.println("Selecciona el dato a introducir o finaliza:\n1.Fecha Estreno\n2.Sinopsis\n3.Finalizar");
         int opcion=sc.nextInt();
+        sc.nextLine();
         insertPelicula.setDate(3, null);
         insertPelicula.setString(5, null);
         while (opcion!=3){
             if(opcion==1) {
-                System.out.println("Introduce la fecha");
-                SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy");
-                String fechaString = sc.nextLine();
-                // Convertir el String a Date
-                Date fechaEstreno = (Date) formato.parse(fechaString);
+                Date fechaEstreno = Main.obtenerFechaDesdeScanner(conn, sc);
                 insertPelicula.setDate(3, fechaEstreno);
             }
             else if(opcion==2){
@@ -116,6 +157,7 @@ public class Pelicula {
             }
             System.out.println("Selecciona el dato a introducir o finaliza:\n1.Fecha Estreno\n2.Sinopsis\n3.Finalizar");
             opcion = sc.nextInt();
+            sc.nextLine();
         }
         insertPelicula.execute();
         mostrarPelicula(conn, -1);
@@ -123,11 +165,14 @@ public class Pelicula {
         switch (sc.nextInt()){
             case 1:
                 conn.commit();
+                System.out.println("Cambios aplicados");
                 break;
             case 2:
                 conn.rollback(saveInsertPelicula);
+                System.out.println("Cambios revertidos");
                 break;
         }
+        sc.nextLine();
         conn.setAutoCommit(true);
     }
 
@@ -145,6 +190,36 @@ public class Pelicula {
             else return true;
         }
         else return false;
+    }
+    public static boolean comprobarPerteneceA(Connection conn, int idPelicula, int idGenero) throws SQLException{
+        String sqlComprobar = "SELECT COUNT(*) FROM PerteneceA WHERE IDPelicula = ? AND IDGenero = ?";
+        PreparedStatement comprobar = conn.prepareStatement(sqlComprobar);
+        comprobar.setInt(1, idPelicula);
+        comprobar.setInt(2, idGenero);
+        ResultSet resultComprobar = comprobar.executeQuery();
+        if(resultComprobar.next()){
+            if (resultComprobar.getInt(1)==1){
+                System.out.println("El actor ya esta añadido se cancela la operacion");
+                return true;
+            }
+            else return false;
+        }
+        else return true;
+    }
+    public static boolean comprobarActua(Connection conn, int idPelicula, String nombreActor) throws SQLException{
+        String sqlComprobar = "SELECT COUNT(*) FROM Actua WHERE IDPelicula = ? AND NombreActor = ?";
+        PreparedStatement comprobar = conn.prepareStatement(sqlComprobar);
+        comprobar.setInt(1, idPelicula);
+        comprobar.setString(2, nombreActor);
+        ResultSet resultComprobar = comprobar.executeQuery();
+        if(resultComprobar.next()){
+            if (resultComprobar.getInt(1)==1){
+                System.out.println("El genero ya esta añadido");
+                return true;
+            }
+            else return false;
+        }
+        else return true;
     }
 
     //True si esta de baja
@@ -185,7 +260,9 @@ public class Pelicula {
             System.out.println("Reseñas: " + resultSet.getInt("Reseñas"));
 
         }
+        System.out.println("Antes de genero");
         mostrarGenerosPelicula(conn, idPelicula);
+        System.out.println("Antes de actor");
         mostrarActoresPelicula(conn, idPelicula);
     }
     public static void bajaPelicula(Connection conn) throws SQLException{
@@ -194,6 +271,7 @@ public class Pelicula {
         Scanner sc= new Scanner(System.in);
         System.out.println("Introduce la id de la pelicula a dar de baja");
         int idPelicula= sc.nextInt();
+        sc.nextLine();
         if(!comprobarIdPelicula(conn, idPelicula)){
             conn.rollback(saveBajaPelicula);
             conn.setAutoCommit(true);
@@ -214,6 +292,7 @@ public class Pelicula {
                 conn.rollback(saveBajaPelicula);
                 break;
         }
+        sc.nextLine();
         conn.setAutoCommit(true);
     }
 
@@ -223,6 +302,7 @@ public class Pelicula {
         Scanner sc= new Scanner(System.in);
         System.out.println("Introduce la id de la pelicula a modificar");
         int idPelicula= sc.nextInt();
+        sc.nextLine();
         if(!comprobarIdPelicula(conn, idPelicula)) {
             conn.rollback(saveUpdatePelicula);
             conn.setAutoCommit(true);
@@ -230,10 +310,12 @@ public class Pelicula {
         }
         if(comprobarBajaPelicula(conn, idPelicula)){
             System.out.println("La pelicula esta dada de baja.");
+            conn.setAutoCommit(true);
             return;
         }
         System.out.println("¿Que campo desea modificar?:\n1. Nombre\n2. Precio\n3. Fecha Estreno\n4. Sinopsis\n5. Finalizar");
         int opcion = sc.nextInt();
+        sc.nextLine();
         PreparedStatement updatePelicula;
         String sqlUpdatePelicula;
         while (opcion!=5) {
@@ -264,7 +346,7 @@ public class Pelicula {
                     sqlUpdatePelicula = "UPDATE DatosPelicula SET FechaEstreno = ? WHERE IDPelicula = ?";
                     updatePelicula = conn.prepareStatement(sqlUpdatePelicula);
                     updatePelicula.setInt(2, idPelicula);
-                    Date fechaEstreno = Main.obtenerFechaDesdeScanner(sc);
+                    Date fechaEstreno = Main.obtenerFechaDesdeScanner(conn, sc);
                     updatePelicula.setDate(1, fechaEstreno);
                     updatePelicula.execute();
                     break;
@@ -279,47 +361,24 @@ public class Pelicula {
             }
             System.out.println("¿Que campo desea modificar?:\n1. Nombre\n2. Precio\n3. Fecha Estreno\n4. Sinopsis\n5. Finalizar");
             opcion = sc.nextInt();
-        }
-
-        String sqlSelect = "SELECT * FROM DatosPelicula WHERE IDPelicula = ?";
-        PreparedStatement select = conn.prepareStatement(sqlSelect);
-        select.setInt(1, idPelicula);
-        ResultSet resultSet = select.executeQuery();
-        if (resultSet.next()) {
-
-            String nombre = resultSet.getString("Nombre");
-            double precioSelect = resultSet.getDouble("Precio");
-            Date fechaEstreno = resultSet.getDate("FechaEstreno");
-            Date fechaAltaSelect = resultSet.getDate("FechaAlta");
-            Date fechaBaja = resultSet.getDate("FechaBaja");
-            String sinopsisSelect = resultSet.getString("Sinopsis");
-            double calificacion = resultSet.getDouble("Calificacion");
-            int reseñas = resultSet.getInt("Reseñas");
-
-
-            // Mostrar la información de la última película
-            System.out.println("IDPelicula: " + idPelicula);
-            System.out.println("Nombre: " + nombre);
-            System.out.println("Precio: " + precioSelect);
-            System.out.println("Fecha Estreno: " + fechaEstreno);
-            System.out.println("Fecha Alta: " + fechaAltaSelect);
-            System.out.println("Fecha Baja" + fechaBaja);
-            System.out.println("Sinopsis: " + sinopsisSelect);
-            System.out.println("Calificacion: " + calificacion);
-            System.out.println("Reseñas: " + reseñas);
+            sc.nextLine();
 
         }
+
+        mostrarPelicula(conn, idPelicula);
+
         System.out.println("¿Quieres confirmar los cambios?\n1. Si\n2. No");
         switch (sc.nextInt()){
             case 1:
                 conn.commit();
-                System.out.println("Cambios confirmados");
+                System.out.println("Cambios aplicados");
                 break;
             case 2:
                 conn.rollback(saveUpdatePelicula);
-                System.out.println("Cambios cancelados");
+                System.out.println("Cambios revertidos");
                 break;
         }
+        sc.nextLine();
         conn.setAutoCommit(true);
 
     }
@@ -373,6 +432,7 @@ public class Pelicula {
         }
         String sqlSelect = "SELECT IDGenero FROM PerteneceA WHERE IDPelicula = ?";
         PreparedStatement select = conn.prepareStatement(sqlSelect);
+        select.setInt(1, idPelicula);
         ResultSet resultSelect = select.executeQuery();
         sqlSelect = "SELECT Nombre FROM DatosGenero WHERE IDGenero = ?";
         select = conn.prepareStatement(sqlSelect);
@@ -403,7 +463,7 @@ public class Pelicula {
 
         String sqlSelect = "SELECT NombreActor FROM Actua WHERE IDPelicula = ?";
         PreparedStatement select = conn.prepareStatement(sqlSelect);
-        select.setInt(1, idPelicula);  // Agrega este setInt para el segundo PreparedStatement
+        select.setInt(1, idPelicula);
         ResultSet resultSelect = select.executeQuery();
 
         System.out.println("Los actores que participan en esta película con ID: " + idPelicula + " son:");
@@ -417,12 +477,15 @@ public class Pelicula {
         Scanner sc = new Scanner(System.in);
         System.out.println("Introduce el id de la pelicula");
         int idPelicula = sc.nextInt();
+        sc.nextLine();
         if(!comprobarIdPelicula(conn, idPelicula)||comprobarBajaPelicula(conn, idPelicula)){
             System.out.println("El id es incorrecto o esta dada de baja");
+            conn.setAutoCommit(true);
             return;
         }
         System.out.println("Selecciona una opcion:\n1. Añadir genero\n2. Añadir Actor\n3. Mostrar Generos\n4. Mostrar Actores\n5. Finalizar");
         int opcion = sc.nextInt();
+        sc.nextLine();
         String sqlInsert;
         PreparedStatement insert;
         String sqlComprobar;
@@ -436,6 +499,7 @@ public class Pelicula {
                     insert.setInt(1, idPelicula);
                     System.out.println("Introduce el genero");
                     int idGenero = sc.nextInt();
+                    sc.nextLine();
                     sqlComprobar = "SELECT COUNT(*) FROM DatosGenero WHERE IDGenero = ?";
                     comprobar = conn.prepareStatement(sqlComprobar);
                     comprobar.setInt(1, idGenero);
@@ -446,10 +510,15 @@ public class Pelicula {
                             break;
                         }
                     }
+                    if(comprobarPerteneceA(conn, idPelicula, idGenero)){
+                        break;
+                    }
                     insert.setInt(2, idGenero);
                     insert.execute();
+                    System.out.println("Genero añadido");
                     break;
                 case 2:
+                    sc.nextLine();
                     sqlInsert = "INSERT INTO Actua (IDPelicula, NombreActor) VALUES (?, ?)";
                     insert = conn.prepareStatement(sqlInsert);
                     insert.setInt(1, idPelicula);
@@ -465,8 +534,12 @@ public class Pelicula {
                             break;
                         }
                     }
+                    if(comprobarActua(conn, idPelicula, nombreActor)){
+                        break;
+                    }
                     insert.setString(2, nombreActor);
                     insert.execute();
+                    System.out.println("Actor añadido");
                     break;
                 case 3:
                     mostrarGenero(conn);
@@ -477,6 +550,7 @@ public class Pelicula {
             }
             System.out.println("Selecciona una opcion:\n1. Añadir genero\n2. Añadir Actor\n3. Mostrar Generos\n4. Mostrar Actores\n5. Finalizar");
             opcion = sc.nextInt();
+            sc.nextLine();
         }
         mostrarActoresPelicula(conn, idPelicula);
         mostrarGenerosPelicula(conn, idPelicula);
@@ -489,6 +563,7 @@ public class Pelicula {
                 conn.rollback(saveAñadir);
                 break;
         }
+        sc.nextLine();
         conn.setAutoCommit(true);
     }
 }

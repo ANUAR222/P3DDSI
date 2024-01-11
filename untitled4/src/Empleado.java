@@ -3,9 +3,10 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.Scanner;
+@SuppressWarnings("SqlResolve")
 
 public class Empleado {
-
+    //While esta mal solo sale cuando buscas enmpleado
     static void menuEmpleados(Connection conn, Scanner sc) throws SQLException{
 
         System.out.println("Bienvenido al menú de empleado:");
@@ -78,6 +79,7 @@ public class Empleado {
 
     }
 
+
     public static boolean existeEmpleado(Connection conn, String dni) throws SQLException {
 
         boolean existe;
@@ -138,7 +140,6 @@ public class Empleado {
                             telefono = sc.nextLine();
                             break;
                         case 2:
-                            telefono=null;
                             break;
                         default:
                             System.out.println("Opcion no válida.");
