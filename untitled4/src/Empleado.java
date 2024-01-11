@@ -2,6 +2,7 @@ import java.sql.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.Scanner;
 
 public class Empleado {
@@ -356,20 +357,52 @@ public class Empleado {
         }while (!existe);
     }
 
-    //Esta mal la obtencion de la fecha y deberia comprobarse si existe el empleado y si esta dado de baja
     public static void darBajaEmpleado(Connection conn, Scanner sc) throws SQLException {
 
         System.out.println("Introduzca el DNI del empleado que quieras dar de baja:");
         String dni = sc.nextLine();
 
-        Date fecha = null;
-        fecha.getTime();
+        boolean existe;
 
-        String sql = "UPDATE DatosEmpleado SET FechaBaja=CURRENT_DATE WHERE DNI=?";
-        PreparedStatement pstmt = conn.prepareStatement(sql);
-        pstmt.setString(1, dni);
-        pstmt.executeUpdate();
+        do {
 
+            existe = existeEmpleado(conn, dni);
+
+            if (existe) {
+
+                String fecha="SELECT FechaBaja FROM DatosEmpleado WHERE DNI=?";
+
+                PreparedStatement pstmt = conn.prepareStatement(fecha);
+                pstmt.setString(1, dni);
+                pstmt.executeUpdate();
+
+                if(fecha==null){
+
+                    Date baja=new Date();
+
+                    String sql = "UPDATE DatosEmpleado SET FechaBaja= WHERE DNI=?";
+                    PreparedStatement pstmt1 = conn.prepareStatement(sql);
+                    pstmt1.setDate(1, (java.sql.Date) baja);
+                    pstmt1.setString(2, dni);
+                    pstmt1.executeUpdate();
+
+                }else{
+
+                    System.out.println("Ese empleado ya está dado de baja.");
+                    System.out.println("Introduzca de nuevo el DNI:");
+                    dni = sc.nextLine();
+
+                }
+
+
+            }else {
+
+                System.out.println("Ese DNI no está registrado.");
+                System.out.println("Introduzca de nuevo el DNI:");
+                dni = sc.nextLine();
+
+            }
+        }while (!existe);
     }
 
     public static void mostrarEmpleado(Connection conn, Scanner sc) throws SQLException {
@@ -393,11 +426,11 @@ public class Empleado {
                     rs.getDate("FechaBaja"));
         }
     }
-    //El while esta mal
+
     public static void buscarEmpleado(Connection conn, Scanner sc) throws SQLException {
 
         int opcion = -1;
-        while (opcion != 3) {
+        while (opcion < 1 || opcion > 3) {
 
             System.out.println("Seleccione una de las siguientes opciones para su busqueda:");
             System.out.println("1. Busqueda por nombre.");
