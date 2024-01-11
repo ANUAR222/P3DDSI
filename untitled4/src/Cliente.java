@@ -9,7 +9,7 @@ public class Cliente {
         int opcion = -1;
 
 
-        while (opcion != 5) {
+        while (true) {
 
             System.out.println("Selecciona una de las siguientes opciones del cliente:");
             System.out.println("1. Dar alta a un cliente.");
@@ -35,6 +35,8 @@ public class Cliente {
                 case 5:
                     mostrarPeliculasAlquiladas(conn, sc);
                     break;
+                case 6:
+                    return;
                 default:
                     System.out.println("Opción no válida.");
                     break;
