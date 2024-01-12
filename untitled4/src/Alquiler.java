@@ -63,12 +63,20 @@ public class Alquiler {
     public static void registrarNuevoAlquiler(Connection conn, Scanner sc) throws SQLException {
         String correo;
         int idPelicula;
+
         do {
             do {
                 System.out.println("Introduce el correo electrónico del cliente:");
                 correo = sc.nextLine();
                 if (!comprobarExisteCliente(conn, correo)) {
-                    System.out.println("Error: El cliente no existe. introduzca espacio para salir");
+                    System.out.println("Error: El cliente no existe. Introduzca espacio para salir");
+                    String salir = sc.nextLine();
+                    if (salir.equals(" ")) {
+                        return;
+                    }
+                }
+                if (Cliente.comprobarBajaCliente(conn, correo)) {
+                    System.out.println("Error: El cliente está de baja. Introduzca espacio para salir");
                     String salir = sc.nextLine();
                     if (salir.equals(" ")) {
                         return;
@@ -81,60 +89,85 @@ public class Alquiler {
                 idPelicula = sc.nextInt();
                 sc.nextLine();  // Consumir el salto de línea pendiente
                 if (!comprobarexistePelicula(conn, idPelicula)) {
-                    System.out.println("Error: La película no existe. introduzca espacio para salir");
+                    System.out.println("Error: La película no existe. Introduzca espacio para salir");
                     String salir = sc.nextLine();
                     if (salir.equals(" ")) {
                         return;
                     }
                 }
-            } while (!comprobarexistePelicula(conn, idPelicula));
+                if (Pelicula.comprobarBajaPelicula(conn, idPelicula)) {
+                    System.out.println("Error: La película está de baja. Introduzca espacio para salir");
+                    String salir = sc.nextLine();
+                    if (salir.equals(" ")) {
+                        return;
+                    }
+                }
+            } while (!comprobarexistePelicula(conn, idPelicula) || Pelicula.comprobarBajaPelicula(conn, idPelicula));
+
             if (comprobarExisteAlquiler(conn, correo, idPelicula)) {
-                System.out.println("Error: El cliente ya tiene esta película alquilada. introduzca espacio para salir");
+                System.out.println("Error: El cliente ya tiene esta película alquilada. Introduzca espacio para salir");
                 String salir = sc.nextLine();
                 if (salir.equals(" ")) {
                     return;
                 }
             }
-        }while (comprobarExisteAlquiler(conn, correo, idPelicula));
-        //pon la fecha actual
-        String fechaAlquiler = LocalDate.now().toString();
-        String fechaVencimiento;
+
+        } while (comprobarExisteAlquiler(conn, correo, idPelicula));
+
+        // Obtener la fecha actual
+        Date fechaAlquiler = Main.obtenerFechaDesdeScanner(conn, sc);
+
+        Date fechaVencimiento;
         do {
-            System.out.println("Introduce la fecha de vencimiento (YYYY-MM-DD):");
-            fechaVencimiento = sc.nextLine();
-            if (fechaVencimiento.compareTo(fechaAlquiler) < 0) {
-                System.out.println("Error: La fecha de vencimiento debe ser posterior a la fecha de alquiler. introduzca espacio para salir");
+            fechaVencimiento = Main.obtenerFechaDesdeScanner(conn, sc);
+            if (fechaVencimiento.before(fechaAlquiler)) {
+                System.out.println("Error: La fecha de vencimiento debe ser posterior a la fecha de alquiler. Introduzca espacio para salir");
                 String salir = sc.nextLine();
                 if (salir.equals(" ")) {
                     return;
                 }
             }
-        }while (fechaVencimiento.compareTo(fechaAlquiler) < 0);
+        } while (fechaVencimiento.before(fechaAlquiler));
 
         double precioAlquiler = calcular_precio_alquiler(conn, fechaAlquiler, fechaVencimiento, idPelicula);
 
-        String sql = "INSERT INTO DatosAlquiler (CorreoElectronico, IDPelicula, FechaAlquiler, FechaVencimiento, PrecioAlquiler) VALUES (?, ?, ?, ?, ?)";
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, correo);
-            pstmt.setInt(2, idPelicula);
-            pstmt.setDate(3, Date.valueOf(fechaAlquiler));
-            pstmt.setDate(4, Date.valueOf(fechaVencimiento));
-            pstmt.setDouble(5, precioAlquiler);
-            pstmt.executeUpdate();
+        // Insertar en la tabla PrecioAlquiler
+        String sqlPrecioAlquiler = "INSERT INTO PrecioAlquiler (IDPelicula, FechaAlquiler, FechaVencimiento, PrecioAlquiler) VALUES (?, ?, ?, ?)";
+        try (PreparedStatement pstmtPrecio = conn.prepareStatement(sqlPrecioAlquiler)) {
+            pstmtPrecio.setInt(1, idPelicula);
+            pstmtPrecio.setDate(2, fechaAlquiler);
+            pstmtPrecio.setDate(3, fechaVencimiento);
+            pstmtPrecio.setDouble(4, precioAlquiler);
+            pstmtPrecio.executeUpdate();
+        }
+
+        // Insertar en la tabla DatosAlquiler
+        String sqlDatosAlquiler = "INSERT INTO DatosAlquiler (CorreoElectronico, IDPelicula, FechaAlquiler, FechaVencimiento, PrecioAlquiler) VALUES (?, ?, ?, ?, ?)";
+        try (PreparedStatement pstmtDatos = conn.prepareStatement(sqlDatosAlquiler)) {
+            pstmtDatos.setString(1, correo);
+            pstmtDatos.setInt(2, idPelicula);
+            pstmtDatos.setDate(3, fechaAlquiler);
+            pstmtDatos.setDate(4, fechaVencimiento);
+            pstmtDatos.setDouble(5, precioAlquiler);
+            pstmtDatos.executeUpdate();
             System.out.println("Alquiler registrado con éxito.");
         }
     }
+
     //Quita el try si no vas a hacer nada con el catch
-    public static double calcular_precio_alquiler(Connection conn,String fecha_inc, String fecha_fin, int idPelicula) throws SQLException {
+    public static double calcular_precio_alquiler(Connection conn, Date fecha_inc, java.util.Date fecha_fin, int idPelicula) throws SQLException {
         String sql = "SELECT Precio FROM DatosPelicula WHERE IDPelicula = ?";
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, idPelicula);
             ResultSet rs = pstmt.executeQuery();
             rs.next();
             double precio = rs.getDouble("Precio")*0.2;
-            int dias = (int) ((Date.valueOf(fecha_fin).getTime() - Date.valueOf(fecha_inc).getTime()) / (1000 * 60 * 60 * 24));
+            int dias = (int) ((fecha_fin.getTime() - fecha_inc.getTime()) / (1000 * 60 * 60 * 24));
             return precio * dias;
+        }catch (SQLException e){
+            System.out.println(e.getMessage());
         }
+        return 0;
     }
     //Quita el try si no vas a hacer nada con el catch
     public static boolean comprobarExisteAlquiler(Connection conn, String correo, int idPelicula) throws SQLException {
@@ -155,7 +188,10 @@ public class Alquiler {
             ResultSet rs = pstmt.executeQuery();
             rs.next();
             return rs.getInt(1) > 0;
+        }catch (SQLException e){
+            System.out.println(e.getMessage());
         }
+        return false;
     }
     //Lo mismo aqui usa el de cliente no hagas uno nuevo
     public static boolean comprobarExisteCliente(Connection conn, String correo) throws SQLException {
@@ -165,7 +201,10 @@ public class Alquiler {
             ResultSet rs = pstmt.executeQuery();
             rs.next();
             return rs.getInt(1) > 0;
+        }catch (SQLException e){
+            System.out.println(e.getMessage());
         }
+        return false;
     }
     //Comprueba la baja de la pelicula
     //Usa la funcion para pedir la fecha
@@ -188,22 +227,28 @@ public class Alquiler {
                 System.out.println("Error: La película no existe.");
                 return;
             }
-        }while (!comprobarexistePelicula(conn, idPelicula));
+        }while (!comprobarexistePelicula(conn, idPelicula) || Pelicula.comprobarBajaPelicula(conn, idPelicula));
 
         if (!verificarAlquilerExistente(conn, correo, idPelicula)) {
             System.out.println("Error: El cliente no tiene esta película alquilada.");
             return;
         }
-        String nuevaFechaVencimiento;
+        Date nuevaFechaVencimiento;
         do {
-            System.out.println("Introduce la nueva fecha de vencimiento (YYYY-MM-DD):");
-            nuevaFechaVencimiento = sc.nextLine();
-        }while (comprobarFechaVencimiento(conn, correo, idPelicula, nuevaFechaVencimiento));
+            nuevaFechaVencimiento = Main.obtenerFechaDesdeScanner(conn, sc);
+            if (nuevaFechaVencimiento.before(Date.valueOf(LocalDate.now()))) {
+                System.out.println("Error: La fecha de vencimiento debe ser posterior a la fecha actual.");
+            }
+            if (!comprobarFechaVencimiento(conn, correo, idPelicula, nuevaFechaVencimiento)) {
+                System.out.println("Error: La fecha de vencimiento debe ser posterior a la fecha de vencimiento actual.");
+            }
+        } while (nuevaFechaVencimiento.before(Date.valueOf(LocalDate.now())) || !comprobarFechaVencimiento(conn, correo, idPelicula, nuevaFechaVencimiento));
+
         extenderFechaAlquiler(conn, correo, idPelicula, nuevaFechaVencimiento);
     }
     //Si usas la funcion de pedir fecha tienes que cambiar la comparacion
     //Quita el try si no vas a hacer nada con el catch
-    private static boolean comprobarFechaVencimiento(Connection conn, String correo, int idPelicula, String nuevaFechaVencimiento) throws SQLException {
+    private static boolean comprobarFechaVencimiento(Connection conn, String correo, int idPelicula, Date nuevaFechaVencimiento) throws SQLException {
         String sql = "SELECT FechaVencimiento FROM DatosAlquiler WHERE CorreoElectronico = ? AND IDPelicula = ?";
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, correo);
@@ -211,8 +256,11 @@ public class Alquiler {
             ResultSet rs = pstmt.executeQuery();
             rs.next();
             Date fechaVencimiento = rs.getDate("FechaVencimiento");
-            return fechaVencimiento.after(Date.valueOf(nuevaFechaVencimiento));
+            return fechaVencimiento.after(nuevaFechaVencimiento);
+        }catch (SQLException e){
+            System.out.println(e.getMessage());
         }
+        return false;
     }
     //Quita el try si no vas a hacer nada con el catch
     private static boolean verificarAlquilerExistente(Connection conn, String correo, int idPelicula) throws SQLException {
@@ -223,18 +271,23 @@ public class Alquiler {
             ResultSet rs = pstmt.executeQuery();
             rs.next();
             return rs.getInt(1) > 0;
+        }catch (SQLException e){
+            System.out.println(e.getMessage());
         }
+        return false;
     }
     //Si usas la funcion de pedir fecha tienes que cambiar la comparacion
     //Quita el try si no vas a hacer nada con el catch
-    private static void extenderFechaAlquiler(Connection conn, String correo, int idPelicula, String nuevaFechaVencimiento) throws SQLException {
+    private static void extenderFechaAlquiler(Connection conn, String correo, int idPelicula, Date nuevaFechaVencimiento) throws SQLException {
         String sql = "UPDATE DatosAlquiler SET FechaVencimiento = ? WHERE CorreoElectronico = ? AND IDPelicula = ?";
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setDate(1, Date.valueOf(nuevaFechaVencimiento));
+            pstmt.setDate(1, nuevaFechaVencimiento);
             pstmt.setString(2, correo);
             pstmt.setInt(3, idPelicula);
             pstmt.executeUpdate();
             System.out.println("Fecha de alquiler extendida con éxito.");
+        }catch (SQLException e){
+            System.out.println(e.getMessage());
         }
     }
 
@@ -242,12 +295,26 @@ public class Alquiler {
 
     //O verificas aqui o verificas en el verificarAlquiler pero tienes q comprobar el correo e idpelicula
     public static void simularAccesoPelicula(Connection conn, Scanner sc) throws SQLException {
-        System.out.println("Introduce el ID de la película:");
-        int idPelicula = sc.nextInt();
-        sc.nextLine(); // Consumir el salto de línea pendiente
-        System.out.println("Introduce el correo electrónico del cliente:");
-        String correo = sc.nextLine();
+        String correo;
+        do {
+            System.out.println("Introduce el correo electrónico del cliente:");
+            correo = sc.nextLine();
+            if (!comprobarExisteCliente(conn, correo)) {
+                System.out.println("Error: El cliente no existe.");
+                return;
+            }
+        }while (!comprobarExisteCliente(conn, correo) || Cliente.comprobarBajaCliente(conn, correo));
 
+        int idPelicula;
+        do {
+            System.out.println("Introduce el ID de la película:");
+            idPelicula = sc.nextInt();
+            sc.nextLine();  // Consumir el salto de línea pendiente
+            if (!comprobarexistePelicula(conn, idPelicula)) {
+                System.out.println("Error: La película no existe.");
+                return;
+            }
+        }while (!comprobarexistePelicula(conn, idPelicula) || Pelicula.comprobarBajaPelicula(conn, idPelicula));
         if (!verificarAlquilerExistente(conn, correo, idPelicula)) {
             System.out.println("Error: El cliente no tiene esta película alquilada.");
             return;
@@ -269,19 +336,42 @@ public class Alquiler {
     // Subsistema 3: Precompra película
     //O verificas aqui o verificas en el precomprarPelicula pero tienes q comprobar el correo e idpelicula
     static void simularPrecompraPelicula(Connection conn, Scanner sc) throws SQLException {
-        System.out.println("Introduce el id de la película:");
-        String id = sc.nextLine();
-        System.out.println("Introduce el ID del cliente:");
-        String idCliente = sc.nextLine();
+        String correo;
+        int idPelicula;
+        Date fechavenc;
+        do {
+            System.out.println("Introduce el correo electrónico del cliente:");
+            correo = sc.nextLine();
+            if (!comprobarExisteCliente(conn, correo)) {
+                System.out.println("Error: El cliente no existe.");
+                return;
+            }
+        }while (!comprobarExisteCliente(conn, correo) || Cliente.comprobarBajaCliente(conn, correo));
+        do {
 
-        precomprarPelicula(conn, id, idCliente);
+            System.out.println("Introduce el ID de la película:");
+            idPelicula = sc.nextInt();
+            sc.nextLine();  // Consumir el salto de línea pendiente
+            if (!comprobarexistePelicula(conn, idPelicula)) {
+                System.out.println("Error: La película no existe.");
+                return;
+            }
+        }while (!comprobarexistePelicula(conn, idPelicula) || Pelicula.comprobarBajaPelicula(conn, idPelicula));
+
+        do {
+            fechavenc = Main.obtenerFechaDesdeScanner(conn, sc);
+            if (fechavenc.before(Date.valueOf(LocalDate.now()))) {
+                System.out.println("Error: La fecha de vencimiento debe ser posterior a la fecha actual.");
+            }
+        } while (fechavenc.before(Date.valueOf(LocalDate.now())));
+        precomprarPelicula(conn, idPelicula, correo, fechavenc);
     }
 
     //Si vas a usar el preparedStatement no pongas el valor de la variable en el strind del tiron ponlo con pstm.setInt.....
     //Quita el try si no vas a hacer nada con el catch
     //El precio esta en otra tabla no en esta y no pides fecha vencimiento
-    static void precomprarPelicula(Connection conn, String id_pelicula, String idCliente) throws SQLException {
-        String fecha_estreno="select FechaEstreno from DatosPelicula where IDPelicula="+id_pelicula;
+    static void precomprarPelicula(Connection conn, int id_pelicula, String idCliente, Date fechavenc) throws SQLException {
+        String fecha_estreno= "SELECT FechaEstreno FROM DatosPelicula WHERE IDPelicula = ?";
         try (PreparedStatement pstmt = conn.prepareStatement(fecha_estreno)) {
             ResultSet rs = pstmt.executeQuery();
             rs.next();
@@ -289,12 +379,16 @@ public class Alquiler {
             String AniadirAlquiler = "INSERT INTO DatosAlquiler (CorreoElectronico, IDPelicula, FechaAlquiler, FechaVencimiento, PrecioAlquiler) VALUES (?, ?, ?, ?, ?)";
             try (PreparedStatement stmt = conn.prepareStatement(AniadirAlquiler)) {
                 stmt.setString(1, idCliente);
-                stmt.setString(2, id_pelicula);
+                stmt.setInt(2, id_pelicula);
                 stmt.setDate(3, fechaEstreno);
-                stmt.setDate(4, Date.valueOf(fechaEstreno.toLocalDate().plusYears(1)));
-                stmt.setDouble(5, 0.0);
+                stmt.setDate(4, fechavenc);
+                stmt.setDouble(5, calcular_precio_alquiler(conn, fechaEstreno, fechavenc, id_pelicula));
                 stmt.executeUpdate();
+            }catch (SQLException e){
+                System.out.println(e.getMessage());
             }
+        }catch (SQLException e){
+            System.out.println(e.getMessage());
         }
     }
 

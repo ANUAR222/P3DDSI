@@ -8,6 +8,7 @@ import java.sql.Date;
 
 
 
+
 public class Main {
 
     public static void main(String[] args) throws SQLException {
@@ -41,7 +42,7 @@ public class Main {
                         //mostrarPeliculas(conn);
                         break;
                     case 4:
-                        Alquiler.simularInsercionAlquiler(conn, sc);
+                        Alquiler.registrarNuevoAlquiler(conn, sc);
                         break;
                     case 5:
                         Cliente.menuCliente(conn, sc);
@@ -137,14 +138,6 @@ public class Main {
         return conn;
     }
 
-    public static void crearTablas(Connection conn) throws SQLException {
-        try {
-            // Inserción de datos de ejemplo
-            insertarDatosEjemplo(conn);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
     static void insertarDatosEjemplo(Connection conn) throws SQLException {
         // Insertar datos en la tabla DatosPelicula
         String insertDatosPelicula = "INSERT INTO DatosPelicula (IDPelicula, Nombre, Precio, FechaEstreno, FechaAlta, FechaBaja, Sinopsis, Calificacion) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
