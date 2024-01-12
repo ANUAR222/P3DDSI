@@ -43,7 +43,7 @@ public class Alquiler {
 
     //Quitar try
     public static void mostrarAlquileres(Connection conn) throws SQLException {
-        String sql = "SELECT * FROM DatosAlquila";
+        String sql = "SELECT * FROM DatosAlquiler";
         Statement stmt = conn.createStatement();
         ResultSet rs = stmt.executeQuery(sql);
         while (rs.next()) {
