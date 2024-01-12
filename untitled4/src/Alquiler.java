@@ -375,23 +375,33 @@ public class Alquiler {
     //El precio esta en otra tabla no en esta y no pides fecha vencimiento
     static void precomprarPelicula(Connection conn, int id_pelicula, String idCliente, Date fechavenc) throws SQLException {
         String fecha_estreno= "SELECT FechaEstreno FROM DatosPelicula WHERE IDPelicula = ?";
+        Date fechaEstreno=null;
         try (PreparedStatement pstmt = conn.prepareStatement(fecha_estreno)) {
             ResultSet rs = pstmt.executeQuery();
             rs.next();
-            Date fechaEstreno = rs.getDate("FechaEstreno");
-            String AniadirAlquiler = "INSERT INTO DatosAlquiler (CorreoElectronico, IDPelicula, FechaAlquiler, FechaVencimiento, PrecioAlquiler) VALUES (?, ?, ?, ?, ?)";
+            fechaEstreno = rs.getDate("FechaEstreno");
+            String AniadirAlquiler = "INSERT INTO DatosAlquiler (CorreoElectronico, IDPelicula, FechaAlquiler, FechaVencimiento) VALUES (?, ?, ?, ?)";
             try (PreparedStatement stmt = conn.prepareStatement(AniadirAlquiler)) {
                 stmt.setString(1, idCliente);
                 stmt.setInt(2, id_pelicula);
                 stmt.setDate(3, fechaEstreno);
                 stmt.setDate(4, fechavenc);
-                stmt.setDouble(5, calcular_precio_alquiler(conn, fechaEstreno, fechavenc, id_pelicula));
                 stmt.executeUpdate();
             }catch (SQLException e){
                 System.out.println(e.getMessage());
             }
         }catch (SQLException e){
             System.out.println(e.getMessage());
+        }
+        double precioAlquiler = calcular_precio_alquiler(conn, fechavenc, fechavenc, id_pelicula);
+        // Insertar en la tabla PrecioAlquiler
+        String sqlPrecioAlquiler = "INSERT INTO PrecioAlquiler (IDPelicula, FechaAlquiler, FechaVencimiento, PrecioAlquiler) VALUES (?, ?, ?, ?)";
+        try (PreparedStatement pstmtPrecio = conn.prepareStatement(sqlPrecioAlquiler)) {
+            pstmtPrecio.setInt(1, id_pelicula);
+            pstmtPrecio.setDate(2, fechaEstreno);
+            pstmtPrecio.setDate(3, fechavenc);
+            pstmtPrecio.setDouble(4, precioAlquiler);
+            pstmtPrecio.executeUpdate();
         }
     }
 
