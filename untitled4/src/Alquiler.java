@@ -178,7 +178,10 @@ public class Alquiler {
             ResultSet rs = pstmt.executeQuery();
             rs.next();
             return rs.getInt(1) > 0;
+        }catch (SQLException e){
+            System.out.println(e.getMessage());
         }
+        return false;
     }
     //Usa mi metodo para no tener varios metodos que hagan lo mismo
     public static boolean comprobarexistePelicula(Connection conn, int idPelicula) throws SQLException {
