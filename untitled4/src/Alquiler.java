@@ -402,7 +402,10 @@ public class Alquiler {
             pstmtPrecio.setDate(3, fechavenc);
             pstmtPrecio.setDouble(4, precioAlquiler);
             pstmtPrecio.executeUpdate();
+        }catch (SQLException e){
+            System.out.println(e.getMessage());
         }
+
     }
 
 }
