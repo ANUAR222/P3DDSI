@@ -32,6 +32,7 @@ public class Alquiler {
                     break;
                 case 5:
                     mostrarAlquileres(conn);
+                    break;
                 case 6:
                     return;  // Salir de la función y volver al menú principal
                 default:
@@ -41,7 +42,7 @@ public class Alquiler {
         }
     }
 
-    //Quitar try
+
     public static void mostrarAlquileres(Connection conn) throws SQLException {
         String sql = "SELECT * FROM DatosAlquiler";
         Statement stmt = conn.createStatement();
@@ -56,10 +57,10 @@ public class Alquiler {
             System.out.println();
         }
     }
-    //Si el cliente esta de baja el usuario no lo sabe tienes que decirlo, tienes que comprobar si pelicula esta de baja
-    //La comparacion de fechas como string no funcionan asi con Date se pueden comparar y usa la funcion para pedir la fecha de Main
-    //Quita el try del final si no vas a hacer nada con el catch
-    //El precio de alquiler es otra tabla distinta no DatosAlquiler
+    //La fecha alquiler tienes que sacarla tu con date.now o algo asi en mi insert puedes copiar mi fechaAlta
+    //Datos alquiler no tiene precio va a dar excepcion ese insert
+    //Quita los try del final si no vas a hacer nada con el catch
+
     public static void registrarNuevoAlquiler(Connection conn, Scanner sc) throws SQLException {
         String correo;
         int idPelicula;
@@ -88,7 +89,7 @@ public class Alquiler {
                 System.out.println("Introduce el ID de la película:");
                 idPelicula = sc.nextInt();
                 sc.nextLine();  // Consumir el salto de línea pendiente
-                if (!comprobarexistePelicula(conn, idPelicula)) {
+                if (!Pelicula.comprobarIdPelicula(conn, idPelicula)) {
                     System.out.println("Error: La película no existe. Introduzca espacio para salir");
                     String salir = sc.nextLine();
                     if (salir.equals(" ")) {
@@ -102,7 +103,7 @@ public class Alquiler {
                         return;
                     }
                 }
-            } while (!comprobarexistePelicula(conn, idPelicula) || Pelicula.comprobarBajaPelicula(conn, idPelicula));
+            } while (!Pelicula.comprobarIdPelicula(conn, idPelicula) || Pelicula.comprobarBajaPelicula(conn, idPelicula));
 
             if (comprobarExisteAlquiler(conn, correo, idPelicula)) {
                 System.out.println("Error: El cliente ya tiene esta película alquilada. Introduzca espacio para salir");
@@ -183,19 +184,7 @@ public class Alquiler {
         }
         return false;
     }
-    //Usa mi metodo para no tener varios metodos que hagan lo mismo
-    public static boolean comprobarexistePelicula(Connection conn, int idPelicula) throws SQLException {
-        String sql = "SELECT COUNT(*) FROM DatosPelicula WHERE IDPelicula = ?";
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, idPelicula);
-            ResultSet rs = pstmt.executeQuery();
-            rs.next();
-            return rs.getInt(1) > 0;
-        }catch (SQLException e){
-            System.out.println(e.getMessage());
-        }
-        return false;
-    }
+
     //Lo mismo aqui usa el de cliente no hagas uno nuevo
     public static boolean comprobarExisteCliente(Connection conn, String correo) throws SQLException {
         String sql = "SELECT COUNT(*) FROM DatosCliente WHERE CorreoElectronico = ?";
@@ -226,11 +215,11 @@ public class Alquiler {
             System.out.println("Introduce el ID de la película:");
             idPelicula = sc.nextInt();
             sc.nextLine();  // Consumir el salto de línea pendiente
-            if (!comprobarexistePelicula(conn, idPelicula)) {
+            if (!Pelicula.comprobarIdPelicula(conn, idPelicula)) {
                 System.out.println("Error: La película no existe.");
                 return;
             }
-        }while (!comprobarexistePelicula(conn, idPelicula) || Pelicula.comprobarBajaPelicula(conn, idPelicula));
+        }while (!Pelicula.comprobarIdPelicula(conn, idPelicula) || Pelicula.comprobarBajaPelicula(conn, idPelicula));
 
         if (!verificarAlquilerExistente(conn, correo, idPelicula)) {
             System.out.println("Error: El cliente no tiene esta película alquilada.");
@@ -249,7 +238,7 @@ public class Alquiler {
 
         extenderFechaAlquiler(conn, correo, idPelicula, nuevaFechaVencimiento);
     }
-    //Si usas la funcion de pedir fecha tienes que cambiar la comparacion
+
     //Quita el try si no vas a hacer nada con el catch
     private static boolean comprobarFechaVencimiento(Connection conn, String correo, int idPelicula, Date nuevaFechaVencimiento) throws SQLException {
         String sql = "SELECT FechaVencimiento FROM DatosAlquiler WHERE CorreoElectronico = ? AND IDPelicula = ?";
@@ -279,7 +268,7 @@ public class Alquiler {
         }
         return false;
     }
-    //Si usas la funcion de pedir fecha tienes que cambiar la comparacion
+
     //Quita el try si no vas a hacer nada con el catch
     private static void extenderFechaAlquiler(Connection conn, String correo, int idPelicula, Date nuevaFechaVencimiento) throws SQLException {
         String sql = "UPDATE DatosAlquiler SET FechaVencimiento = ? WHERE CorreoElectronico = ? AND IDPelicula = ?";
@@ -313,11 +302,11 @@ public class Alquiler {
             System.out.println("Introduce el ID de la película:");
             idPelicula = sc.nextInt();
             sc.nextLine();  // Consumir el salto de línea pendiente
-            if (!comprobarexistePelicula(conn, idPelicula)) {
+            if (!Pelicula.comprobarIdPelicula(conn, idPelicula)) {
                 System.out.println("Error: La película no existe.");
                 return;
             }
-        }while (!comprobarexistePelicula(conn, idPelicula) || Pelicula.comprobarBajaPelicula(conn, idPelicula));
+        }while (!Pelicula.comprobarIdPelicula(conn, idPelicula) || Pelicula.comprobarBajaPelicula(conn, idPelicula));
         if (!verificarAlquilerExistente(conn, correo, idPelicula)) {
             System.out.println("Error: El cliente no tiene esta película alquilada.");
             return;
@@ -337,7 +326,7 @@ public class Alquiler {
     }
 
     // Subsistema 3: Precompra película
-    //O verificas aqui o verificas en el precomprarPelicula pero tienes q comprobar el correo e idpelicula
+    //La fecha vencimiento tiene que ser mayor a la fecha de estreno si el estreno es en un mes y pones que la fecha vencimiento es mañana te deja insertar el alquiler y estaria mal
     static void simularPrecompraPelicula(Connection conn, Scanner sc) throws SQLException {
         String correo;
         int idPelicula;
@@ -355,11 +344,11 @@ public class Alquiler {
             System.out.println("Introduce el ID de la película:");
             idPelicula = sc.nextInt();
             sc.nextLine();  // Consumir el salto de línea pendiente
-            if (!comprobarexistePelicula(conn, idPelicula)) {
+            if (!Pelicula.comprobarIdPelicula(conn, idPelicula)) {
                 System.out.println("Error: La película no existe.");
                 return;
             }
-        }while (!comprobarexistePelicula(conn, idPelicula) || Pelicula.comprobarBajaPelicula(conn, idPelicula));
+        }while (!Pelicula.comprobarIdPelicula(conn, idPelicula) || Pelicula.comprobarBajaPelicula(conn, idPelicula));
 
         do {
             fechavenc = Main.obtenerFechaDesdeScanner(conn, sc);
@@ -370,7 +359,7 @@ public class Alquiler {
         precomprarPelicula(conn, idPelicula, correo, fechavenc);
     }
 
-    //Si vas a usar el preparedStatement no pongas el valor de la variable en el strind del tiron ponlo con pstm.setInt.....
+    //El primer preparedStatement no tiene su setInt va a dar excepcion
     //Quita el try si no vas a hacer nada con el catch
     //El precio esta en otra tabla no en esta y no pides fecha vencimiento
     static void precomprarPelicula(Connection conn, int id_pelicula, String idCliente, Date fechavenc) throws SQLException {
