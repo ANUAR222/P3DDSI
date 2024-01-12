@@ -138,50 +138,54 @@ public class Main {
         return conn;
     }
 
-    static void insertarDatosEjemplo(Connection conn) throws SQLException {
+    public static void insertarDatosEjemplo(Connection conn) throws SQLException {
         // Insertar datos en la tabla DatosPelicula
-        String insertDatosPelicula = "INSERT INTO DatosPelicula (IDPelicula, Nombre, Precio, FechaEstreno, FechaAlta, FechaBaja, Sinopsis, Calificacion) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-        try (PreparedStatement stmt = conn.prepareStatement(insertDatosPelicula)) {
-            stmt.setInt(1, 1);
-            stmt.setString(2, "Interstellar");
-            stmt.setDouble(3, 12.99);
-            stmt.setDate(4, Date.valueOf("2014-11-07"));
-            stmt.setDate(5, Date.valueOf("2014-11-01"));
-            stmt.setDate(6, Date.valueOf("2015-04-30"));
-            stmt.setString(7, "Un grupo de exploradores hacen uso de un agujero de gusano recién descubierto para superar las limitaciones de los viajes espaciales tripulados y conquistar las vastas distancias involucradas en un viaje interestelar.");
-            stmt.setDouble(8, 4.7);
+        String insertDatosPelicula = "INSERT INTO DatosPelicula (Nombre, Precio, FechaEstreno, FechaAlta, FechaBaja, Sinopsis, Calificacion) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement stmt = conn.prepareStatement(insertDatosPelicula, Statement.RETURN_GENERATED_KEYS)) {
+            stmt.setString(1, "Interstellar");
+            stmt.setDouble(2, 12.99);
+            stmt.setDate(3, Date.valueOf("2014-11-07"));
+            stmt.setDate(4, Date.valueOf("2014-11-01"));
+            stmt.setDate(5, Date.valueOf("2015-04-30"));
+            stmt.setString(6, "Un grupo de exploradores hacen uso de un agujero de gusano recién descubierto para superar las limitaciones de los viajes espaciales tripulados y conquistar las vastas distancias involucradas en un viaje interestelar.");
+            stmt.setDouble(7, 4.7);
             stmt.executeUpdate();
-        }
 
-        // Insertar datos en la tabla DatosGenero
-        String insertDatosGenero = "INSERT INTO DatosGenero (IDGenero, Nombre) VALUES (?, ?)";
-        try (PreparedStatement stmt = conn.prepareStatement(insertDatosGenero)) {
-            stmt.setInt(1, 1);
-            stmt.setString(2, "Ciencia Ficción");
-            stmt.executeUpdate();
-        }
+            // Obtener el ID generado para la película
+            ResultSet generatedKeys = stmt.getGeneratedKeys();
+            if (generatedKeys.next()) {
+                int idPelicula = generatedKeys.getInt(1);
 
-        // Insertar datos en la tabla PerteneceA
-        String insertPerteneceA = "INSERT INTO PerteneceA (IDPelicula, IDGenero) VALUES (?, ?)";
-        try (PreparedStatement stmt = conn.prepareStatement(insertPerteneceA)) {
-            stmt.setInt(1, 1);
-            stmt.setInt(2, 1);
-            stmt.executeUpdate();
-        }
+                // Insertar datos en la tabla DatosGenero
+                String insertDatosGenero = "INSERT INTO DatosGenero (Nombre) VALUES (?)";
+                try (PreparedStatement genreStmt = conn.prepareStatement(insertDatosGenero)) {
+                    genreStmt.setString(1, "Ciencia Ficción");
+                    genreStmt.executeUpdate();
 
-        // Insertar datos en la tabla Actores
-        String insertActores = "INSERT INTO Actores (NombreActor) VALUES (?)";
-        try (PreparedStatement stmt = conn.prepareStatement(insertActores)) {
-            stmt.setString(1, "Matthew McConaughey");
-            stmt.executeUpdate();
-        }
+                    // Insertar datos en la tabla PerteneceA
+                    String insertPerteneceA = "INSERT INTO PerteneceA (IDPelicula, IDGenero) VALUES (?, ?)";
+                    try (PreparedStatement perteneceAStmt = conn.prepareStatement(insertPerteneceA)) {
+                        perteneceAStmt.setInt(1, idPelicula);
+                        perteneceAStmt.setInt(2, 1);
+                        perteneceAStmt.executeUpdate();
+                    }
 
-        // Insertar datos en la tabla Actua
-        String insertActua = "INSERT INTO Actua (IDPelicula, NombreActor) VALUES (?, ?)";
-        try (PreparedStatement stmt = conn.prepareStatement(insertActua)) {
-            stmt.setInt(1, 1);
-            stmt.setString(2, "Matthew McConaughey");
-            stmt.executeUpdate();
+                    // Insertar datos en la tabla Actores
+                    String insertActores = "INSERT INTO Actores (NombreActor) VALUES (?)";
+                    try (PreparedStatement actorStmt = conn.prepareStatement(insertActores)) {
+                        actorStmt.setString(1, "Matthew McConaughey");
+                        actorStmt.executeUpdate();
+
+                        // Insertar datos en la tabla Actua
+                        String insertActua = "INSERT INTO Actua (IDPelicula, NombreActor) VALUES (?, ?)";
+                        try (PreparedStatement actuaStmt = conn.prepareStatement(insertActua)) {
+                            actuaStmt.setInt(1, idPelicula);
+                            actuaStmt.setString(2, "Matthew McConaughey");
+                            actuaStmt.executeUpdate();
+                        }
+                    }
+                }
+            }
         }
 
         // Insertar datos en la tabla DatosCliente
@@ -242,6 +246,7 @@ public class Main {
             stmt.executeUpdate();
         }
     }
+
     static void ejecutarSQL(Connection conn, String sql) throws SQLException {
         try (Statement stmt = conn.createStatement()) {
             stmt.executeUpdate(sql);
