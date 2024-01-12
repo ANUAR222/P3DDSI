@@ -25,7 +25,7 @@ public class Main {
                 System.out.println("2. Menu Pelicula.");
                 System.out.println("3. Mostrar películas.");
                 System.out.println("4. Simular inserción de alquiler.");
-                System.out.println("5. Dar alta a un cliente.");
+                System.out.println("5. Menu cliente.");
                  System.out.println("6. Menu de empleado.");
                 System.out.println("7. Salir.");
 

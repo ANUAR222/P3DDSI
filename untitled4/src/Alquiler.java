@@ -69,7 +69,7 @@ public class Alquiler {
             do {
                 System.out.println("Introduce el correo electrónico del cliente:");
                 correo = sc.nextLine();
-                if (!comprobarExisteCliente(conn, correo)) {
+                if (!Cliente.comprobarExisteCliente(conn, correo)) {
                     System.out.println("Error: El cliente no existe. Introduzca espacio para salir");
                     String salir = sc.nextLine();
                     if (salir.equals(" ")) {
@@ -83,7 +83,7 @@ public class Alquiler {
                         return;
                     }
                 }
-            } while (Cliente.comprobarBajaCliente(conn, correo) || !comprobarExisteCliente(conn, correo));
+            } while (Cliente.comprobarBajaCliente(conn, correo) || !Cliente.comprobarExisteCliente(conn, correo));
 
             do {
                 System.out.println("Introduce el ID de la película:");
@@ -178,21 +178,14 @@ public class Alquiler {
     }
 
     //Esto deberia ir en cliente
-    public static boolean comprobarExisteCliente(Connection conn, String correo) throws SQLException {
-        String sql = "SELECT COUNT(*) FROM DatosCliente WHERE CorreoElectronico = ?";
-        PreparedStatement pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, correo);
-            ResultSet rs = pstmt.executeQuery();
-            rs.next();
-            return rs.getInt(1) > 0;
-    }
+
 
     public static void simularExtenderAlquiler(Connection conn, Scanner sc) throws SQLException {
         String correo;
         do {
             System.out.println("Introduce el correo electrónico del cliente:");
             correo = sc.nextLine();
-            if (!comprobarExisteCliente(conn, correo)) {
+            if (!Cliente.comprobarExisteCliente(conn, correo)) {
                 System.out.println("Error: El cliente no existe. con espacio para salir");
                 if (sc.nextLine().equals(" ")) {
                     return;
@@ -204,7 +197,7 @@ public class Alquiler {
                     return;
                 }
             }
-        }while (!comprobarExisteCliente(conn, correo) || Cliente.comprobarBajaCliente(conn, correo));
+        }while (!Cliente.comprobarExisteCliente(conn, correo) || Cliente.comprobarBajaCliente(conn, correo));
         int idPelicula;
         do {
             System.out.println("Introduce el ID de la película:");
@@ -275,11 +268,11 @@ public class Alquiler {
         do {
             System.out.println("Introduce el correo electrónico del cliente:");
             correo = sc.nextLine();
-            if (!comprobarExisteCliente(conn, correo)) {
+            if (!Cliente.comprobarExisteCliente(conn, correo)) {
                 System.out.println("Error: El cliente no existe.");
                 return;
             }
-        }while (!comprobarExisteCliente(conn, correo) || Cliente.comprobarBajaCliente(conn, correo));
+        }while (!Cliente.comprobarExisteCliente(conn, correo) || Cliente.comprobarBajaCliente(conn, correo));
 
         int idPelicula;
         do {
@@ -316,11 +309,11 @@ public class Alquiler {
         do {
             System.out.println("Introduce el correo electrónico del cliente:");
             correo = sc.nextLine();
-            if (!comprobarExisteCliente(conn, correo)) {
+            if (!Cliente.comprobarExisteCliente(conn, correo)) {
                 System.out.println("Error: El cliente no existe.");
                 return;
             }
-        }while (!comprobarExisteCliente(conn, correo) || Cliente.comprobarBajaCliente(conn, correo));
+        }while (!Cliente.comprobarExisteCliente(conn, correo) || Cliente.comprobarBajaCliente(conn, correo));
         do {
 
             System.out.println("Introduce el ID de la película:");

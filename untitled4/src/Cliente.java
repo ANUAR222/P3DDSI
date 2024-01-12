@@ -19,6 +19,7 @@ public class Cliente {
             System.out.println("5. Mostrar peliculas alquiladas.");
 
             opcion = sc.nextInt();
+            sc.nextLine();
             switch (opcion) {
                 case 1:
                     darAltaCliente(conn, sc);
@@ -44,14 +45,21 @@ public class Cliente {
         }
 
     }
-    //Fecha de baja tiene q swe null si o si
+    public static boolean comprobarExisteCliente(Connection conn, String correo) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM DatosCliente WHERE CorreoElectronico = ?";
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        pstmt.setString(1, correo);
+        ResultSet rs = pstmt.executeQuery();
+        rs.next();
+        return rs.getInt(1) > 0;
+    }
     static void darAltaCliente(Connection conn, Scanner sc) throws SQLException {
 
         System.out.println("Introduce el correo electrónico del cliente:");
         String correoElectronico = sc.nextLine();
-        while (Alquiler.comprobarExisteCliente(conn, correoElectronico) || correoElectronico.isEmpty()) {
-            System.out.println("El correo ya existe, introduce otro:");
-            correoElectronico = sc.nextLine();
+        if (comprobarExisteCliente(conn, correoElectronico) || correoElectronico.isEmpty()) {
+            System.out.println("El correo ya existe");
+            return;
         }
         System.out.println("Introduce el nombre del cliente:");
         String nombre = sc.nextLine();
@@ -66,9 +74,7 @@ public class Cliente {
         else {
              telefono = null;
         }
-        //pon la fecha actual como fecha de alta y la de baja dentro de un año
         LocalDate fechaAlta = LocalDate.now();
-        LocalDate fechaBaja = fechaAlta.plusYears(1);
 
         // Insertar datos en la tabla DatosCliente
         String sql = "INSERT INTO DatosCliente (CorreoElectronico, Nombre, Apellidos, Telefono, FechaAlta, FechaBaja) VALUES (?, ?, ?, ?, ?, ?)";
@@ -79,7 +85,7 @@ public class Cliente {
             pstmt.setString(3, apellidos);
             pstmt.setString(4, telefono);
             pstmt.setDate(5, Date.valueOf(fechaAlta));
-            pstmt.setDate(6, Date.valueOf(fechaBaja));
+            pstmt.setDate(6, null);
         pstmt.executeUpdate();
 
     }
@@ -112,9 +118,9 @@ public class Cliente {
         String correo;
         correo = sc.nextLine();
 
-        while (comprobarBajaCliente(conn, correo) || !Alquiler.comprobarExisteCliente(conn, correo)) {
-            System.out.println("El correo no existe o ya está dado de baja, introduce otro:");
-            correo = sc.nextLine();
+        if (comprobarBajaCliente(conn, correo) || !comprobarExisteCliente(conn, correo)) {
+            System.out.println("El correo no existe o ya está dado de baja");
+            return;
         }
         LocalDate fecha = LocalDate.now();
 
@@ -130,6 +136,10 @@ public class Cliente {
 
         System.out.println("Introduzca el correo electronico del cliente que quieras ver los datos:");
         String correo = sc.nextLine();
+        if (!comprobarExisteCliente(conn, correo) || comprobarBajaCliente(conn, correo)) {
+            System.out.println("El correo no existe o ya está dado de baja");
+            return;
+        }
         String sql = "SELECT * FROM DatosCliente WHERE CorreoElectronico='" + correo + "'";
         Statement pstmt = conn.createStatement();
         ResultSet rs = pstmt.executeQuery(sql);
@@ -151,11 +161,11 @@ public class Cliente {
         Savepoint saveUpdatePelicula=conn.setSavepoint();
         System.out.println("Introduce el correo electrónico del cliente a modificar:");
         String correo = sc.nextLine();
-        while (!Alquiler.comprobarExisteCliente(conn, correo) || comprobarBajaCliente(conn, correo)) {
-            System.out.println("El correo no existe o ya está dado de baja, introduce otro:");
-            correo = sc.nextLine();
+        if(!comprobarExisteCliente(conn, correo) || comprobarBajaCliente(conn, correo)) {
+            System.out.println("El correo no existe o está dado de baja");
+            conn.setAutoCommit(true);
+            return;
         }
-
         System.out.println("¿Que campo desea modificar?:\n1. Nombre\n2. Apellidos\n3. Telefono\n4. Finalizar");
         int opcion = sc.nextInt();
         sc.nextLine();
@@ -172,7 +182,7 @@ public class Cliente {
                     updateCliente.execute();
                     break;
                 case 2:
-                    sqlUpdateCliente = "UPDATE DatosCliente SET Apellido = ? WHERE CorreoElectronico = ?";
+                    sqlUpdateCliente = "UPDATE DatosCliente SET Apellidos = ? WHERE CorreoElectronico = ?";
                     updateCliente = conn.prepareStatement(sqlUpdateCliente);
                     updateCliente.setString(2, correo);
                     System.out.println("Introduce los apellidos");
@@ -215,15 +225,13 @@ public class Cliente {
     public static void mostrarPeliculasAlquiladas(Connection conn, Scanner sc) throws SQLException {
         System.out.println("Introduzca el correo electronico del cliente que quieras ver los alquileres:");
         String correo = sc.nextLine();
-        while (!Alquiler.comprobarExisteCliente(conn, correo) || comprobarBajaCliente(conn, correo)) {
-            System.out.println("El correo no existe o ya está dado de baja, introduce otro:");
-            correo = sc.nextLine();
+        if (!comprobarExisteCliente(conn, correo) || comprobarBajaCliente(conn, correo)) {
+            System.out.println("El correo no existe o está dado de baja");
+            return;
         }
         String sql = "SELECT IDPelicula FROM DatosAlquiler WHERE CorreoElectronico='" + correo + "'";
         Statement pstmt = conn.createStatement();
         ResultSet rs = pstmt.executeQuery(sql);
-        String peli;
-        ResultSet rs2;
         while (rs.next()) {
             Pelicula.mostrarPelicula(conn, rs.getInt("IDPelicula"));
         }
