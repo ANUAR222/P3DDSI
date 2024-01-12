@@ -44,6 +44,7 @@ public class Cliente {
         }
 
     }
+    //Fecha de baja tiene q swe null si o si
     static void darAltaCliente(Connection conn, Scanner sc) throws SQLException {
 
         System.out.println("Introduce el correo electrónico del cliente:");
@@ -104,6 +105,7 @@ public class Cliente {
         return true;
     }
 
+    //La funcion de comprobar cliente deberia estar aqui no en alquiler
     public static void darBajaCliente(Connection conn, Scanner sc) throws SQLException {
 
         System.out.println("Introduzca el correo electronico del cliente que quieras dar de baja:");
@@ -122,6 +124,7 @@ public class Cliente {
         pstmt.setString(2, correo);
         pstmt.executeUpdate();
     }
+
     //Comprobar correo
     public static void mostrarDatosCliente(Connection conn, Scanner sc) throws SQLException {
 
@@ -142,7 +145,7 @@ public class Cliente {
                 rs.getDate(5) + "\t" +
                 rs.getDate(6));
     }
-    //Comprobar correo y baja
+
     static void modificarCliente(Connection conn, Scanner sc) throws SQLException {
         conn.setAutoCommit(false);
         Savepoint saveUpdatePelicula=conn.setSavepoint();
@@ -216,25 +219,13 @@ public class Cliente {
             System.out.println("El correo no existe o ya está dado de baja, introduce otro:");
             correo = sc.nextLine();
         }
-        String sql = "SELECT IDPelicula FROM AlquilaV2 WHERE CorreoElectronico='" + correo + "'";
+        String sql = "SELECT IDPelicula FROM DatosAlquiler WHERE CorreoElectronico='" + correo + "'";
         Statement pstmt = conn.createStatement();
         ResultSet rs = pstmt.executeQuery(sql);
         String peli;
         ResultSet rs2;
         while (rs.next()) {
-            peli = "SELECT * FROM DatosPelicula WHERE IDPelicula='" + rs.getString(1) + "'";
-            pstmt = conn.createStatement();
-            rs2 = pstmt.executeQuery(peli);
-            rs2.next();
-            System.out.println("ID: " + rs2.getString(1));
-            System.out.println("Nombre: " + rs2.getString(2));
-            System.out.println("Precio: " + rs2.getString(3));
-            System.out.println("FechaEstreno: " + rs2.getString(4));
-            System.out.println("FechaAlta: " + rs2.getString(5));
-            System.out.println("FechaBaja: " + rs2.getString(6));
-            System.out.println("Sinopsis: " + rs2.getString(7));
-            System.out.println("Calificacion: 16" + rs2.getString(8));
-            System.out.println("-------------------------------------------------");
+            Pelicula.mostrarPelicula(conn, rs.getInt("IDPelicula"));
         }
     }
 }

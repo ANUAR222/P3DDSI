@@ -185,7 +185,7 @@ public class Alquiler {
         return false;
     }
 
-    //Lo mismo aqui usa el de cliente no hagas uno nuevo
+    //Esto deberia ir en cliente
     public static boolean comprobarExisteCliente(Connection conn, String correo) throws SQLException {
         String sql = "SELECT COUNT(*) FROM DatosCliente WHERE CorreoElectronico = ?";
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
