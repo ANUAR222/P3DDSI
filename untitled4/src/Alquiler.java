@@ -134,17 +134,17 @@ public class Alquiler {
 
         // Insertar en la tabla PrecioAlquiler
         String sqlPrecioAlquiler = "INSERT INTO PrecioAlquiler (IDPelicula, FechaAlquiler, FechaVencimiento, PrecioAlquiler) VALUES (?, ?, ?, ?)";
-        try (PreparedStatement pstmtPrecio = conn.prepareStatement(sqlPrecioAlquiler)) {
+        PreparedStatement pstmtPrecio = conn.prepareStatement(sqlPrecioAlquiler);
             pstmtPrecio.setInt(1, idPelicula);
             pstmtPrecio.setDate(2, fechaAlquiler);
             pstmtPrecio.setDate(3, fechaVencimiento);
             pstmtPrecio.setDouble(4, precioAlquiler);
             pstmtPrecio.executeUpdate();
-        }
+
 
         // Insertar en la tabla DatosAlquiler
         String sqlDatosAlquiler = "INSERT INTO DatosAlquiler (CorreoElectronico, IDPelicula, FechaAlquiler, FechaVencimiento, PrecioAlquiler) VALUES (?, ?, ?, ?, ?)";
-        try (PreparedStatement pstmtDatos = conn.prepareStatement(sqlDatosAlquiler)) {
+        PreparedStatement pstmtDatos = conn.prepareStatement(sqlDatosAlquiler);
             pstmtDatos.setString(1, correo);
             pstmtDatos.setInt(2, idPelicula);
             pstmtDatos.setDate(3, fechaAlquiler);
@@ -152,62 +152,57 @@ public class Alquiler {
             pstmtDatos.setDouble(5, precioAlquiler);
             pstmtDatos.executeUpdate();
             System.out.println("Alquiler registrado con éxito.");
-        }
+
     }
 
     //Quita el try si no vas a hacer nada con el catch
     public static double calcular_precio_alquiler(Connection conn, Date fecha_inc, java.util.Date fecha_fin, int idPelicula) throws SQLException {
         String sql = "SELECT Precio FROM DatosPelicula WHERE IDPelicula = ?";
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setInt(1, idPelicula);
             ResultSet rs = pstmt.executeQuery();
             rs.next();
             double precio = rs.getDouble("Precio")*0.2;
             int dias = (int) ((fecha_fin.getTime() - fecha_inc.getTime()) / (1000 * 60 * 60 * 24));
             return precio * dias;
-        }catch (SQLException e){
-            System.out.println(e.getMessage());
-        }
-        return 0;
     }
-    //Quita el try si no vas a hacer nada con el catch
+
     public static boolean comprobarExisteAlquiler(Connection conn, String correo, int idPelicula) throws SQLException {
         String sql = "SELECT COUNT(*) FROM DatosAlquiler WHERE CorreoElectronico = ? AND IDPelicula = ?";
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, correo);
             pstmt.setInt(2, idPelicula);
             ResultSet rs = pstmt.executeQuery();
             rs.next();
             return rs.getInt(1) > 0;
-        }catch (SQLException e){
-            System.out.println(e.getMessage());
-        }
-        return false;
     }
 
     //Esto deberia ir en cliente
     public static boolean comprobarExisteCliente(Connection conn, String correo) throws SQLException {
         String sql = "SELECT COUNT(*) FROM DatosCliente WHERE CorreoElectronico = ?";
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, correo);
             ResultSet rs = pstmt.executeQuery();
             rs.next();
             return rs.getInt(1) > 0;
-        }catch (SQLException e){
-            System.out.println(e.getMessage());
-        }
-        return false;
     }
-    //Comprueba la baja de la pelicula
-    //Usa la funcion para pedir la fecha
+
     public static void simularExtenderAlquiler(Connection conn, Scanner sc) throws SQLException {
         String correo;
         do {
             System.out.println("Introduce el correo electrónico del cliente:");
             correo = sc.nextLine();
             if (!comprobarExisteCliente(conn, correo)) {
-                System.out.println("Error: El cliente no existe.");
-                return;
+                System.out.println("Error: El cliente no existe. con espacio para salir");
+                if (sc.nextLine().equals(" ")) {
+                    return;
+                }
+            }
+            if (Cliente.comprobarBajaCliente(conn, correo)) {
+                System.out.println("Error: El cliente está de baja.pon espacio para salir");
+                if (sc.nextLine().equals(" ")) {
+                    return;
+                }
             }
         }while (!comprobarExisteCliente(conn, correo) || Cliente.comprobarBajaCliente(conn, correo));
         int idPelicula;
@@ -239,7 +234,7 @@ public class Alquiler {
         extenderFechaAlquiler(conn, correo, idPelicula, nuevaFechaVencimiento);
     }
 
-    //Quita el try si no vas a hacer nada con el catch
+
     private static boolean comprobarFechaVencimiento(Connection conn, String correo, int idPelicula, Date nuevaFechaVencimiento) throws SQLException {
         String sql = "SELECT FechaVencimiento FROM DatosAlquiler WHERE CorreoElectronico = ? AND IDPelicula = ?";
         PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -251,7 +246,7 @@ public class Alquiler {
             return fechaVencimiento.after(nuevaFechaVencimiento);
 
     }
-    //Quita el try si no vas a hacer nada con el catch
+
     private static boolean verificarAlquilerExistente(Connection conn, String correo, int idPelicula) throws SQLException {
         String sql = "SELECT COUNT(*) FROM DatosAlquiler WHERE CorreoElectronico = ? AND IDPelicula = ?";
         PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -263,7 +258,6 @@ public class Alquiler {
 
     }
 
-    //Quita el try si no vas a hacer nada con el catch
     private static void extenderFechaAlquiler(Connection conn, String correo, int idPelicula, Date nuevaFechaVencimiento) throws SQLException {
         String sql = "UPDATE DatosAlquiler SET FechaVencimiento = ? WHERE CorreoElectronico = ? AND IDPelicula = ?";
         PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -276,8 +270,7 @@ public class Alquiler {
 
     // Subsistema 2: Acceder a película
 
-    //O verificas aqui o verificas en el verificarAlquiler pero tienes q comprobar el correo e idpelicula
-    public static void simularAccesoPelicula(Connection conn, Scanner sc) throws SQLException {
+     public static void simularAccesoPelicula(Connection conn, Scanner sc) throws SQLException {
         String correo;
         do {
             System.out.println("Introduce el correo electrónico del cliente:");
@@ -305,7 +298,6 @@ public class Alquiler {
 
         registrarAccesoPelicula(conn, correo, idPelicula);
     }
-    //Quita el try si no vas a hacer nada con el catch
     private static void registrarAccesoPelicula(Connection conn, String correo, int idPelicula) throws SQLException {
         String sql = "UPDATE DatosAlquiler SET FechaAcceso = CURRENT_DATE WHERE CorreoElectronico = ? AND IDPelicula = ?";
         PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -317,8 +309,7 @@ public class Alquiler {
     }
 
     // Subsistema 3: Precompra película
-    //La fecha vencimiento tiene que ser mayor a la fecha de estreno si el estreno es en un mes y pones que la fecha vencimiento es mañana te deja insertar el alquiler y estaria mal
-    static void simularPrecompraPelicula(Connection conn, Scanner sc) throws SQLException {
+     static void simularPrecompraPelicula(Connection conn, Scanner sc) throws SQLException {
         String correo;
         int idPelicula;
         Date fechavenc;
@@ -350,9 +341,6 @@ public class Alquiler {
         precomprarPelicula(conn, idPelicula, correo, fechavenc);
     }
 
-    //El primer preparedStatement no tiene su setInt va a dar excepcion
-    //Quita el try si no vas a hacer nada con el catch
-    //El precio esta en otra tabla no en esta y no pides fecha vencimiento
     static void precomprarPelicula(Connection conn, int id_pelicula, String idCliente, Date fechavenc) throws SQLException {
         String fecha_estreno= "SELECT FechaEstreno FROM DatosPelicula WHERE IDPelicula = ?";
         Date fechaEstreno=null;
@@ -368,7 +356,6 @@ public class Alquiler {
                 stmt.setDate(4, fechavenc);
                 stmt.executeUpdate();
 
-
         double precioAlquiler = calcular_precio_alquiler(conn, fechavenc, fechavenc, id_pelicula);
         // Insertar en la tabla PrecioAlquiler
         String sqlPrecioAlquiler = "INSERT INTO PrecioAlquiler (IDPelicula, FechaAlquiler, FechaVencimiento, PrecioAlquiler) VALUES (?, ?, ?, ?)";
@@ -378,7 +365,5 @@ public class Alquiler {
             pstmtPrecio.setDate(3, fechavenc);
             pstmtPrecio.setDouble(4, precioAlquiler);
             pstmtPrecio.executeUpdate();
-
-
     }
 }
