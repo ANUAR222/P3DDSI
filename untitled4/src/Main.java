@@ -42,7 +42,7 @@ public class Main {
                         //mostrarPeliculas(conn);
                         break;
                     case 4:
-                        Alquiler.registrarNuevoAlquiler(conn, sc);
+                        Alquiler.simularInsercionAlquiler(conn, sc);
                         break;
                     case 5:
                         Cliente.menuCliente(conn, sc);
