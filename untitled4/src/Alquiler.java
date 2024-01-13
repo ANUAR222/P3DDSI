@@ -131,13 +131,15 @@ public class Alquiler {
         double precioAlquiler = calcular_precio_alquiler(conn, fechaAlquiler, fechaVencimiento, idPelicula);
 
         // Insertar en la tabla PrecioAlquiler
-        String sqlPrecioAlquiler = "INSERT INTO PrecioAlquiler (IDPelicula, FechaAlquiler, FechaVencimiento, PrecioAlquiler) VALUES (?, ?, ?, ?)";
-        PreparedStatement pstmtPrecio = conn.prepareStatement(sqlPrecioAlquiler);
-            pstmtPrecio.setInt(1, idPelicula);
-            pstmtPrecio.setDate(2, fechaAlquiler);
-            pstmtPrecio.setDate(3, fechaVencimiento);
-            pstmtPrecio.setDouble(4, precioAlquiler);
-            pstmtPrecio.executeUpdate();
+        if (!comprobar_existe_precioalquiler(conn, idPelicula, fechaAlquiler, fechaVencimiento)) {
+            String sqlPrecioAlquiler = "INSERT INTO PrecioAlquiler (IDPelicula, FechaAlquiler, FechaVencimiento, PrecioAlquiler) VALUES (?, ?, ?, ?)";
+            PreparedStatement pstmtPrecio = conn.prepareStatement(sqlPrecioAlquiler);
+                pstmtPrecio.setInt(1, idPelicula);
+                pstmtPrecio.setDate(2, fechaAlquiler);
+                pstmtPrecio.setDate(3, fechaVencimiento);
+                pstmtPrecio.setDouble(4, precioAlquiler);
+                pstmtPrecio.executeUpdate();
+        }
 
 
         // Insertar en la tabla DatosAlquiler
@@ -234,7 +236,16 @@ public class Alquiler {
             return fechaVencimiento.after(nuevaFechaVencimiento);
 
     }
-
+    private static boolean comprobar_existe_precioalquiler(Connection conn, int idPelicula, Date fechaAlquiler, Date fechaVencimiento) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM PrecioAlquiler WHERE IDPelicula = ? AND FechaAlquiler = ? AND FechaVencimiento = ?";
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, idPelicula);
+            pstmt.setDate(2, fechaAlquiler);
+            pstmt.setDate(3, fechaVencimiento);
+            ResultSet rs = pstmt.executeQuery();
+            rs.next();
+            return rs.getInt(1) > 0;
+    }
     private static boolean verificarAlquilerExistente(Connection conn, String correo, int idPelicula) throws SQLException {
         String sql = "SELECT COUNT(*) FROM DatosAlquiler WHERE CorreoElectronico = ? AND IDPelicula = ?";
         PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -254,6 +265,24 @@ public class Alquiler {
             pstmt.setInt(3, idPelicula);
             pstmt.executeUpdate();
             System.out.println("Fecha de alquiler extendida con éxito.");
+            //recalcula el precio del alquiler
+            String sqlPrecio = "SELECT FechaAlquiler FROM DatosAlquiler WHERE CorreoElectronico = ? AND IDPelicula = ?";
+            PreparedStatement pstmtPrecio = conn.prepareStatement(sqlPrecio);
+                pstmtPrecio.setString(1, correo);
+                pstmtPrecio.setInt(2, idPelicula);
+                ResultSet rs = pstmtPrecio.executeQuery();
+                rs.next();
+                Date fechaAlquiler = rs.getDate("FechaAlquiler");
+                double precioAlquiler = calcular_precio_alquiler(conn, fechaAlquiler, nuevaFechaVencimiento, idPelicula);
+                if (!comprobar_existe_precioalquiler(conn, idPelicula, fechaAlquiler, nuevaFechaVencimiento)) {
+                    String sqlPrecioAlquiler = "INSERT INTO PrecioAlquiler (IDPelicula, FechaAlquiler, FechaVencimiento, PrecioAlquiler) VALUES (?, ?, ?, ?)";
+                    PreparedStatement pstmtPrecioAlquiler = conn.prepareStatement(sqlPrecioAlquiler);
+                        pstmtPrecioAlquiler.setInt(1, idPelicula);
+                        pstmtPrecioAlquiler.setDate(2, fechaAlquiler);
+                        pstmtPrecioAlquiler.setDate(3, nuevaFechaVencimiento);
+                        pstmtPrecioAlquiler.setDouble(4, precioAlquiler);
+                        pstmtPrecioAlquiler.executeUpdate();
+                }
     }
 
     // Subsistema 2: Acceder a película
