@@ -1,3 +1,5 @@
+import oracle.jdbc.proxy.annotation.Pre;
+
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.Scanner;
@@ -17,6 +19,7 @@ public class Cliente {
             System.out.println("3. Modificar un cliente.");
             System.out.println("4. Mostrar datos de cliente.");
             System.out.println("5. Mostrar peliculas alquiladas.");
+            System.out.println("6. Salir.");
 
             opcion = sc.nextInt();
             sc.nextLine();
@@ -69,7 +72,7 @@ public class Cliente {
         System.out.println("¿Quiere introduci el teléfono del cliente? (S/N)");
         if (sc.nextLine().equalsIgnoreCase("S")) {
             System.out.println("Introduce el teléfono del cliente:");
-             telefono = sc.nextLine();
+            telefono = sc.nextLine();
         }
         else {
              telefono = null;
@@ -77,7 +80,7 @@ public class Cliente {
         LocalDate fechaAlta = LocalDate.now();
 
         // Insertar datos en la tabla DatosCliente
-        String sql = "INSERT INTO DatosCliente (CorreoElectronico, Nombre, Apellidos, Telefono, FechaAlta, FechaBaja) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO DatosCliente (CorreoElectronico, Nombre, Apellidos, Telefono, FechaAlta) VALUES (?, ?, ?, ?, ?)";
 
         PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, correoElectronico);
@@ -85,7 +88,6 @@ public class Cliente {
             pstmt.setString(3, apellidos);
             pstmt.setString(4, telefono);
             pstmt.setDate(5, Date.valueOf(fechaAlta));
-            pstmt.setDate(6, null);
         pstmt.executeUpdate();
 
     }
@@ -111,7 +113,7 @@ public class Cliente {
         return true;
     }
 
-    //La funcion de comprobar cliente deberia estar aqui no en alquiler
+
     public static void darBajaCliente(Connection conn, Scanner sc) throws SQLException {
 
         System.out.println("Introduzca el correo electronico del cliente que quieras dar de baja:");
@@ -140,20 +142,22 @@ public class Cliente {
             System.out.println("El correo no existe o ya está dado de baja");
             return;
         }
-        String sql = "SELECT * FROM DatosCliente WHERE CorreoElectronico='" + correo + "'";
-        Statement pstmt = conn.createStatement();
+        String sql = "SELECT * FROM DatosCliente WHERE CorreoElectronico= ?";
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        pstmt.setString(1, correo);
         ResultSet rs = pstmt.executeQuery(sql);
 
         System.out.println("Datos de cliente:");
         System.out.println("CorreoElectronico\tNombre\tApellidos\tTelefono\tFechaAlta\tFecha Baja");
         System.out.println("-----------------------------------------------");
-        rs.next();
-        System.out.println(rs.getString(1) + "\t" +
-                rs.getString(2) + "\t" +
-                rs.getString(3) + "\t" +
-                rs.getString(4) + "\t" +
-                rs.getDate(5) + "\t" +
-                rs.getDate(6));
+        if(rs.next()) {
+            System.out.println(rs.getString(1) + "\t" +
+                    rs.getString(2) + "\t" +
+                    rs.getString(3) + "\t" +
+                    rs.getString(4) + "\t" +
+                    rs.getDate(5) + "\t" +
+                    rs.getDate(6));
+        }
     }
 
     static void modificarCliente(Connection conn, Scanner sc) throws SQLException {
@@ -205,6 +209,22 @@ public class Cliente {
 
         }
 
+        String sql = "SELECT * FROM DatosCliente WHERE CorreoElectronico= ?";
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        pstmt.setString(1, correo);
+        ResultSet rs = pstmt.executeQuery(sql);
+
+        System.out.println("Datos de cliente:");
+        System.out.println("CorreoElectronico\tNombre\tApellidos\tTelefono\tFechaAlta\tFecha Baja");
+        System.out.println("-----------------------------------------------");
+        if(rs.next()) {
+            System.out.println(rs.getString(1) + "\t" +
+                    rs.getString(2) + "\t" +
+                    rs.getString(3) + "\t" +
+                    rs.getString(4) + "\t" +
+                    rs.getDate(5) + "\t" +
+                    rs.getDate(6));
+        }
         System.out.println("¿Quieres confirmar los cambios?\n1. Si\n2. No");
         switch (sc.nextInt()){
             case 1:
@@ -229,8 +249,9 @@ public class Cliente {
             System.out.println("El correo no existe o está dado de baja");
             return;
         }
-        String sql = "SELECT IDPelicula FROM DatosAlquiler WHERE CorreoElectronico='" + correo + "'";
-        Statement pstmt = conn.createStatement();
+        String sql = "SELECT IDPelicula FROM DatosAlquiler WHERE CorreoElectronico= ?";
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        pstmt.setString(1, correo);
         ResultSet rs = pstmt.executeQuery(sql);
         while (rs.next()) {
             Pelicula.mostrarPelicula(conn, rs.getInt("IDPelicula"));

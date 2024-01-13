@@ -57,9 +57,7 @@ public class Alquiler {
             System.out.println();
         }
     }
-    //La fecha alquiler tienes que sacarla tu con date.now o algo asi en mi insert puedes copiar mi fechaAlta
-    //Datos alquiler no tiene precio va a dar excepcion ese insert
-    //Quita los try del final si no vas a hacer nada con el catch
+
 
     public static void registrarNuevoAlquiler(Connection conn, Scanner sc) throws SQLException {
         String correo;
@@ -143,19 +141,17 @@ public class Alquiler {
 
 
         // Insertar en la tabla DatosAlquiler
-        String sqlDatosAlquiler = "INSERT INTO DatosAlquiler (CorreoElectronico, IDPelicula, FechaAlquiler, FechaVencimiento, PrecioAlquiler) VALUES (?, ?, ?, ?, ?)";
+        String sqlDatosAlquiler = "INSERT INTO DatosAlquiler (CorreoElectronico, IDPelicula, FechaAlquiler, FechaVencimiento) VALUES (?, ?, ?, ?)";
         PreparedStatement pstmtDatos = conn.prepareStatement(sqlDatosAlquiler);
             pstmtDatos.setString(1, correo);
             pstmtDatos.setInt(2, idPelicula);
             pstmtDatos.setDate(3, fechaAlquiler);
             pstmtDatos.setDate(4, fechaVencimiento);
-            pstmtDatos.setDouble(5, precioAlquiler);
             pstmtDatos.executeUpdate();
             System.out.println("Alquiler registrado con éxito.");
 
     }
 
-    //Quita el try si no vas a hacer nada con el catch
     public static double calcular_precio_alquiler(Connection conn, Date fecha_inc, java.util.Date fecha_fin, int idPelicula) throws SQLException {
         String sql = "SELECT Precio FROM DatosPelicula WHERE IDPelicula = ?";
         PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -177,7 +173,6 @@ public class Alquiler {
             return rs.getInt(1) > 0;
     }
 
-    //Esto deberia ir en cliente
 
 
     public static void simularExtenderAlquiler(Connection conn, Scanner sc) throws SQLException {
