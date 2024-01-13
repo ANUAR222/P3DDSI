@@ -322,7 +322,6 @@ public class Alquiler {
             pstmt.setInt(2, idPelicula);
             pstmt.executeUpdate();
             System.out.println("Acceso a película registrado con éxito.");
-
     }
 
     // Subsistema 3: Precompra película
@@ -374,13 +373,14 @@ public class Alquiler {
                 stmt.executeUpdate();
 
         double precioAlquiler = calcular_precio_alquiler(conn, fechavenc, fechavenc, id_pelicula);
-        // Insertar en la tabla PrecioAlquiler
-        String sqlPrecioAlquiler = "INSERT INTO PrecioAlquiler (IDPelicula, FechaAlquiler, FechaVencimiento, PrecioAlquiler) VALUES (?, ?, ?, ?)";
-        PreparedStatement pstmtPrecio = conn.prepareStatement(sqlPrecioAlquiler);
-            pstmtPrecio.setInt(1, id_pelicula);
-            pstmtPrecio.setDate(2, fechaEstreno);
-            pstmtPrecio.setDate(3, fechavenc);
-            pstmtPrecio.setDouble(4, precioAlquiler);
-            pstmtPrecio.executeUpdate();
+        if (!comprobar_existe_precioalquiler(conn, id_pelicula, fechaEstreno, fechavenc)) {
+            String sqlPrecioAlquiler = "INSERT INTO PrecioAlquiler (IDPelicula, FechaAlquiler, FechaVencimiento, PrecioAlquiler) VALUES (?, ?, ?, ?)";
+            PreparedStatement pstmtPrecio = conn.prepareStatement(sqlPrecioAlquiler);
+                pstmtPrecio.setInt(1, id_pelicula);
+                pstmtPrecio.setDate(2, fechaEstreno);
+                pstmtPrecio.setDate(3, fechavenc);
+                pstmtPrecio.setDouble(4, precioAlquiler);
+                pstmtPrecio.executeUpdate();
+        }
     }
 }
