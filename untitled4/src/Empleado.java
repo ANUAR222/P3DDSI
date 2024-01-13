@@ -23,6 +23,7 @@ public class Empleado {
             System.out.println("5. Buscar un empleado(Por Nombre, Apellidos o DNI).");
 
             opcion = sc.nextInt();
+            sc.nextLine();
             switch (opcion) {
                 case 1:
                     darAltaEmpleado(conn,sc);
@@ -45,7 +46,7 @@ public class Empleado {
             }
         }
     }
-
+    //Tienes que comprobar que no esten insertados y llamar a esta funcion nada mas entrar al menu xq si no va a dar excepcion el alta de empleado
     static void insertarDatosTurno(Connection conn) throws SQLException {
 
         String insertDatosTurno = "INSERT INTO DatosTurno (NombreTurno, HoraEntrada, HoraSalida, SueldoHora, SueldoTotal) VALUES (?, ?, ?, ?, ?)";
@@ -134,6 +135,7 @@ public class Empleado {
                     System.out.println("1. Sí.");
                     System.out.println("2. No.");
                     opcionTelefono=sc.nextInt();
+                    sc.nextLine();
                     switch (opcionTelefono){
 
                         case 1:
@@ -161,6 +163,7 @@ public class Empleado {
                     System.out.println("3. Turno Nocturno.");
 
                     opcionturno = sc.nextInt();
+                    sc.nextLine();
                     switch (opcionturno) {
                         case 1:
                             turno="Turno Matutino";
@@ -191,7 +194,7 @@ public class Empleado {
             }
         }while (existe);
     }
-
+    //Esta mal entero copia si quieres el de pelicula y cambia los datos
     public static void modificarEmpleado(Connection conn, Scanner sc) throws SQLException {
 
         System.out.println("Introduzca el DNI del empleado que quieras modificar:");
@@ -206,7 +209,6 @@ public class Empleado {
             if (existe) {
 
                 System.out.println("Usuario existente.");
-
                 String nombre=null;
                 int opcionNombre=-1;
                 while(opcionNombre<1 || opcionNombre>2){
@@ -215,6 +217,7 @@ public class Empleado {
                     System.out.println("1. Sí.");
                     System.out.println("2. No.");
                     opcionNombre=sc.nextInt();
+                    sc.nextLine();
                     switch (opcionNombre){
 
                         case 1:
@@ -241,6 +244,7 @@ public class Empleado {
                     System.out.println("1. Sí.");
                     System.out.println("2. No.");
                     opcionNombre=sc.nextInt();
+                    sc.nextLine();
                     switch (opcionApellidos){
 
                         case 1:
@@ -267,6 +271,7 @@ public class Empleado {
                     System.out.println("1. Sí.");
                     System.out.println("2. No.");
                     opcionTelefono=sc.nextInt();
+                    sc.nextLine();
                     switch (opcionTelefono){
 
                         case 1:
@@ -293,6 +298,7 @@ public class Empleado {
                     System.out.println("1. Sí.");
                     System.out.println("2. No.");
                     opcionDireccion=sc.nextInt();
+                    sc.nextLine();
                     switch (opcionDireccion){
 
                         case 1:
@@ -321,6 +327,7 @@ public class Empleado {
                     System.out.println("3. Turno Nocturno.");
 
                     opcionturno = sc.nextInt();
+                    sc.nextLine();
                     switch (opcionturno) {
                         case 1:
                             turno = "Turno Matutino";
@@ -357,7 +364,9 @@ public class Empleado {
             }
         }while (!existe);
     }
-
+    //La fecha no se comprueba asi, solo estas ejecutando el select sin guardarlo en ningun lado fecha solo es el string base del preparedStatement no se guarda ahi el resultado
+    //La fecha actual no se obtiene asi, solo has creado un objeto fecha sin valor ninguno
+    //El while esta mal no puedes obligar a poner un dni, si todos estan de baja o no existen empleados te quedas aqui para siempre
     public static void darBajaEmpleado(Connection conn, Scanner sc) throws SQLException {
 
         System.out.println("Introduzca el DNI del empleado que quieras dar de baja:");
@@ -439,6 +448,7 @@ public class Empleado {
             System.out.println("3. Busqueda por DNI.");
 
             opcion = sc.nextInt();
+            sc.nextLine();
             switch (opcion) {
                 case 1:
                     System.out.println("Introduzca el nombre del empleado:");
