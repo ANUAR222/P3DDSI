@@ -310,7 +310,7 @@ public class Alquiler {
         }while (!Pelicula.comprobarIdPelicula(conn, idPelicula) || Pelicula.comprobarBajaPelicula(conn, idPelicula));
         double calificacion;
         do {
-            System.out.println("Introduce la calificación entre 0 y 10 o -1 si no quiere:");
+            System.out.println("Introduce la calificación entre 0 y 10 :");
             calificacion = sc.nextDouble();
             sc.nextLine();
         }while (calificacion < 0 || calificacion > 10 );
