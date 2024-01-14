@@ -1,3 +1,5 @@
+import oracle.jdbc.proxy.annotation.Pre;
+
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.Scanner;
@@ -47,14 +49,18 @@ public class Alquiler {
         String sql = "SELECT * FROM DatosAlquiler";
         Statement stmt = conn.createStatement();
         ResultSet rs = stmt.executeQuery(sql);
-        while (rs.next()) {
-            System.out.println("Correo electrónico: " + rs.getString("CorreoElectronico"));
-            System.out.println("ID de la película: " + rs.getInt("IDPelicula"));
-            System.out.println("Fecha de alquiler: " + rs.getDate("FechaAlquiler"));
-            System.out.println("Fecha de vencimiento: " + rs.getDate("FechaVencimiento"));
-            System.out.println("Fecha de acceso: " + rs.getDate("FechaAcceso"));
-            System.out.println("Calificación: " + rs.getDouble("Calificacion"));
-            System.out.println();
+        if(rs.next()) {
+            do {
+                System.out.println("Correo electrónico: " + rs.getString("CorreoElectronico"));
+                System.out.println("ID de la película: " + rs.getInt("IDPelicula"));
+                System.out.println("Fecha de alquiler: " + rs.getDate("FechaAlquiler"));
+                System.out.println("Fecha de vencimiento: " + rs.getDate("FechaVencimiento"));
+                System.out.println("Fecha de acceso: " + rs.getDate("FechaAcceso"));
+                System.out.println("Calificación: " + rs.getDouble("Calificacion"));
+                System.out.println();
+            }while (rs.next());
+        } else{
+            System.out.println("No hay alquileres");
         }
     }
 
@@ -214,12 +220,18 @@ public class Alquiler {
         do {
             nuevaFechaVencimiento = Main.obtenerFechaDesdeScanner(conn, sc);
             if (nuevaFechaVencimiento.before(Date.valueOf(LocalDate.now()))) {
-                System.out.println("Error: La fecha de vencimiento debe ser posterior a la fecha actual.");
+                System.out.println("Error: La fecha de vencimiento debe ser posterior a la fecha actual. Introduce espacio para salir.");
+                if (sc.nextLine().equals(" ")) {
+                    return;
+                }
             }
-            if (!comprobarFechaVencimiento(conn, correo, idPelicula, nuevaFechaVencimiento)) {
-                System.out.println("Error: La fecha de vencimiento debe ser posterior a la fecha de vencimiento actual.");
+            if (comprobarFechaVencimiento(conn, correo, idPelicula, nuevaFechaVencimiento)) {
+                System.out.println("Error: La fecha de vencimiento debe ser posterior a la fecha de vencimiento actual. Introduce espacio para salir.");
+                if (sc.nextLine().equals(" ")) {
+                    return;
+                }
             }
-        } while (nuevaFechaVencimiento.before(Date.valueOf(LocalDate.now())) || !comprobarFechaVencimiento(conn, correo, idPelicula, nuevaFechaVencimiento));
+        } while (nuevaFechaVencimiento.before(Date.valueOf(LocalDate.now())) || comprobarFechaVencimiento(conn, correo, idPelicula, nuevaFechaVencimiento));
 
         extenderFechaAlquiler(conn, correo, idPelicula, nuevaFechaVencimiento);
     }
@@ -347,13 +359,27 @@ public class Alquiler {
                 return;
             }
         }while (!Pelicula.comprobarIdPelicula(conn, idPelicula) || Pelicula.comprobarBajaPelicula(conn, idPelicula));
-
+        if(verificarAlquilerExistente(conn, correo, idPelicula)){
+            System.out.println("El alquiler ya existe se cancela la operacion");
+            return;
+        }
+        String sqlComprobar = "SELECT FechaEstreno FROM DatosPelicula WHERE IDPelicula = ?";
+        PreparedStatement comprobar = conn.prepareStatement(sqlComprobar);
+        comprobar.setInt(1, idPelicula);
+        ResultSet resultComprobar = comprobar.executeQuery();
+        if(resultComprobar.next()){
+            if (resultComprobar.getDate("FechaEstreno")==null||resultComprobar.getDate("FechaEstreno").before(Date.valueOf(LocalDate.now()))){
+                System.out.println("La pelicula no puede ser precomprada");
+                return;
+            }
+        }
         do {
             fechavenc = Main.obtenerFechaDesdeScanner(conn, sc);
             if (fechavenc.before(Date.valueOf(LocalDate.now()))) {
                 System.out.println("Error: La fecha de vencimiento debe ser posterior a la fecha actual.");
             }
         } while (fechavenc.before(Date.valueOf(LocalDate.now())));
+
         precomprarPelicula(conn, idPelicula, correo, fechavenc);
     }
 
@@ -361,16 +387,17 @@ public class Alquiler {
         String fecha_estreno= "SELECT FechaEstreno FROM DatosPelicula WHERE IDPelicula = ?";
         Date fechaEstreno=null;
         PreparedStatement pstmt = conn.prepareStatement(fecha_estreno);
-            ResultSet rs = pstmt.executeQuery();
-            rs.next();
-            fechaEstreno = rs.getDate("FechaEstreno");
-            String AniadirAlquiler = "INSERT INTO DatosAlquiler (CorreoElectronico, IDPelicula, FechaAlquiler, FechaVencimiento) VALUES (?, ?, ?, ?)";
-            PreparedStatement stmt = conn.prepareStatement(AniadirAlquiler);
-                stmt.setString(1, idCliente);
-                stmt.setInt(2, id_pelicula);
-                stmt.setDate(3, fechaEstreno);
-                stmt.setDate(4, fechavenc);
-                stmt.executeUpdate();
+        pstmt.setInt(1, id_pelicula);
+        ResultSet rs = pstmt.executeQuery();
+        rs.next();
+        fechaEstreno = rs.getDate("FechaEstreno");
+        String AniadirAlquiler = "INSERT INTO DatosAlquiler (CorreoElectronico, IDPelicula, FechaAlquiler, FechaVencimiento) VALUES (?, ?, ?, ?)";
+        PreparedStatement stmt = conn.prepareStatement(AniadirAlquiler);
+        stmt.setString(1, idCliente);
+        stmt.setInt(2, id_pelicula);
+        stmt.setDate(3, fechaEstreno);
+        stmt.setDate(4, fechavenc);
+        stmt.executeUpdate();
 
         double precioAlquiler = calcular_precio_alquiler(conn, fechavenc, fechavenc, id_pelicula);
         if (!comprobar_existe_precioalquiler(conn, id_pelicula, fechaEstreno, fechavenc)) {

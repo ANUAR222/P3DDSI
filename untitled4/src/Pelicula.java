@@ -260,9 +260,7 @@ public class Pelicula {
             System.out.println("Reseñas: " + resultSet.getInt("Reseñas"));
 
         }
-        System.out.println("Antes de genero");
         mostrarGenerosPelicula(conn, idPelicula);
-        System.out.println("Antes de actor");
         mostrarActoresPelicula(conn, idPelicula);
     }
     public static void bajaPelicula(Connection conn) throws SQLException{
@@ -437,7 +435,7 @@ public class Pelicula {
         sqlSelect = "SELECT Nombre FROM DatosGenero WHERE IDGenero = ?";
         select = conn.prepareStatement(sqlSelect);
         ResultSet resultSelectGenero;
-        System.out.println("Generos a los que pertenece la pelicula con id: " + idPelicula);
+        System.out.println("Generos a los que pertenece la pelicula con ID " + idPelicula + " son:");
         while (resultSelect.next()){
             select.setInt(1, resultSelect.getInt("IDGenero"));
             resultSelectGenero = select.executeQuery();
@@ -445,6 +443,7 @@ public class Pelicula {
                 System.out.println(resultSelectGenero.getString("Nombre"));
             }
         }
+        System.out.println();
     }
     public static void mostrarActoresPelicula(Connection conn, int idPelicula) throws SQLException{
         String sqlComprobar = "SELECT COUNT(*) FROM Actua WHERE IDPelicula = ?";
@@ -466,10 +465,11 @@ public class Pelicula {
         select.setInt(1, idPelicula);
         ResultSet resultSelect = select.executeQuery();
 
-        System.out.println("Los actores que participan en esta película con ID: " + idPelicula + " son:");
+        System.out.println("Los actores que participan en la película con ID " + idPelicula + " son:");
         while (resultSelect.next()) {
             System.out.println(resultSelect.getString("NombreActor"));
         }
+        System.out.println();
     }
     public static void añadirGeneroActor(Connection conn) throws SQLException{
         conn.setAutoCommit(false);
@@ -518,7 +518,6 @@ public class Pelicula {
                     System.out.println("Genero añadido");
                     break;
                 case 2:
-                    sc.nextLine();
                     sqlInsert = "INSERT INTO Actua (IDPelicula, NombreActor) VALUES (?, ?)";
                     insert = conn.prepareStatement(sqlInsert);
                     insert.setInt(1, idPelicula);

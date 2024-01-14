@@ -19,15 +19,15 @@ public class Main {
             conn = conectarBaseDeDatos(sc);
             int opcion = -1;
 
-            while (opcion != 7) {
+            while (opcion!=6) {
                 System.out.println("Selecciona una de las siguientes opciones:");
                 System.out.println("1. Borrar y crear tablas.");
                 System.out.println("2. Menu Pelicula.");
-                System.out.println("3. Mostrar películas.");
-                System.out.println("4. Simular inserción de alquiler.");
-                System.out.println("5. Menu cliente.");
-                 System.out.println("6. Menu de empleado.");
-                System.out.println("7. Salir.");
+                System.out.println("3. Menu Alquiler.");
+                System.out.println("4. Menu Empleado.");
+                System.out.println("5. Menu Cliente.");
+                System.out.println("6. Salir.");
+
 
                 opcion = sc.nextInt();
                 sc.nextLine();
@@ -39,18 +39,15 @@ public class Main {
                         Pelicula.menuPelicula(conn);
                         break;
                     case 3:
-                        //mostrarPeliculas(conn);
+                        Alquiler.simularInsercionAlquiler(conn, sc);
                         break;
                     case 4:
-                        Alquiler.simularInsercionAlquiler(conn, sc);
+                        Empleado.menuEmpleados(conn,sc);
                         break;
                     case 5:
                         Cliente.menuCliente(conn, sc);
                         break;
                     case 6:
-                        Empleado.menuEmpleados(conn,sc);
-                        break;
-                    case 7:
                         salir(conn);
                         break;
                     default:
@@ -75,13 +72,10 @@ public class Main {
     }
 
     public static Date obtenerFechaDesdeScanner(Connection conn, Scanner scanner)  {
-
-
         java.util.Date utilDate = null;
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
         String fechaString;
         do {
-            scanner.nextLine();
             System.out.print("Ingrese la fecha (formato dd/MM/yyyy): ");
             fechaString = scanner.nextLine();
             try {
@@ -100,9 +94,9 @@ public class Main {
 
     public static Connection conectarBaseDeDatos(Scanner sc) throws SQLException {
         System.out.println("Introduce el usuario:");
-        String usuario = sc.next();
+        String usuario = sc.nextLine();
         System.out.println("Introduce la contraseña:");
-        String contrasenia = sc.next();
+        String contrasenia = sc.nextLine();
         String url = "jdbc:oracle:thin:@//oracle0.ugr.es:1521/practbd.oracle0.ugr.es";
         DriverManager.registerDriver(new oracle.jdbc.driver.OracleDriver());
         Connection conn=null;
@@ -113,8 +107,7 @@ public class Main {
         catch (SQLException e){
             //Si el fallo es un usuario o contraseña incorrecto se da un intento mas
             if(e.getErrorCode()==1017){
-                sc.nextLine();
-                System.out.println("Fallo al iniciar sesion: usuario o contraseña incorrectos");
+                System.out.println("Fallo al iniciar sesion: usuario o contraseña incorrectos\n");
                 System.out.println("Introduce el usuario");
                 usuario= sc.nextLine();
                 System.out.println("Introduce la contraseña");

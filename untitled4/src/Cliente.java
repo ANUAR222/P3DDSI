@@ -7,13 +7,13 @@ import java.util.Scanner;
 public class Cliente {
     static void menuCliente(Connection conn, Scanner sc) throws SQLException {
 
-        System.out.println("Bienvenido al menu de cliente:");
+        System.out.println("\nBienvenido al menu de cliente:");
         int opcion = -1;
 
 
         while (true) {
 
-            System.out.println("Selecciona una de las siguientes opciones del cliente:");
+            System.out.println("\nSelecciona una de las siguientes opciones del cliente:");
             System.out.println("1. Dar alta a un cliente.");
             System.out.println("2. Dar baja a un cliente.");
             System.out.println("3. Modificar un cliente.");
@@ -138,14 +138,14 @@ public class Cliente {
 
         System.out.println("Introduzca el correo electronico del cliente que quieras ver los datos:");
         String correo = sc.nextLine();
-        if (!comprobarExisteCliente(conn, correo) || comprobarBajaCliente(conn, correo)) {
-            System.out.println("El correo no existe o ya está dado de baja");
+        if (!comprobarExisteCliente(conn, correo)) {
+            System.out.println("El correo no existe");
             return;
         }
         String sql = "SELECT * FROM DatosCliente WHERE CorreoElectronico= ?";
         PreparedStatement pstmt = conn.prepareStatement(sql);
         pstmt.setString(1, correo);
-        ResultSet rs = pstmt.executeQuery(sql);
+        ResultSet rs = pstmt.executeQuery();
 
         System.out.println("Datos de cliente:");
         System.out.println("CorreoElectronico\tNombre\tApellidos\tTelefono\tFechaAlta\tFecha Baja");
@@ -194,7 +194,6 @@ public class Cliente {
                     updateCliente.execute();
                     break;
                 case 3:
-                    sc.nextLine();
                     sqlUpdateCliente = "UPDATE DatosCliente SET Telefono = ? WHERE CorreoElectronico = ?";
                     updateCliente = conn.prepareStatement(sqlUpdateCliente);
                     updateCliente.setString(2, correo);
@@ -212,7 +211,7 @@ public class Cliente {
         String sql = "SELECT * FROM DatosCliente WHERE CorreoElectronico= ?";
         PreparedStatement pstmt = conn.prepareStatement(sql);
         pstmt.setString(1, correo);
-        ResultSet rs = pstmt.executeQuery(sql);
+        ResultSet rs = pstmt.executeQuery();
 
         System.out.println("Datos de cliente:");
         System.out.println("CorreoElectronico\tNombre\tApellidos\tTelefono\tFechaAlta\tFecha Baja");
@@ -252,9 +251,13 @@ public class Cliente {
         String sql = "SELECT IDPelicula FROM DatosAlquiler WHERE CorreoElectronico= ?";
         PreparedStatement pstmt = conn.prepareStatement(sql);
         pstmt.setString(1, correo);
-        ResultSet rs = pstmt.executeQuery(sql);
-        while (rs.next()) {
-            Pelicula.mostrarPelicula(conn, rs.getInt("IDPelicula"));
+        ResultSet rs = pstmt.executeQuery();
+        if(rs.next()) {
+            do {
+                Pelicula.mostrarPelicula(conn, rs.getInt("IDPelicula"));
+            }while (rs.next());
+        } else {
+            System.out.println("No tiene peliculas alquiladas");
         }
     }
 }

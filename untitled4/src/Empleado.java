@@ -13,7 +13,7 @@ public class Empleado {
         System.out.println("Bienvenido al menú de empleado:");
         int opcion = -1;
 
-        while (opcion < 1 || opcion > 5) {
+        while (true) {
 
             System.out.println("Selecciona una de las siguientes opciones del empleado:");
             System.out.println("1. Dar alta a un empleado.");
@@ -21,6 +21,7 @@ public class Empleado {
             System.out.println("3. Modificar un empleado.");
             System.out.println("4. Mostrar empleados.");
             System.out.println("5. Buscar un empleado(Por Nombre, Apellidos o DNI).");
+            System.out.println("6. Salir");
 
             opcion = sc.nextInt();
             sc.nextLine();
@@ -40,6 +41,8 @@ public class Empleado {
                 case 5:
                     buscarEmpleado(conn, sc);
                     break;
+                case 6:
+                    return;
                 default:
                     System.out.println("Opción no válida.");
                     break;
@@ -54,7 +57,7 @@ public class Empleado {
         String sql="SELECT * FROM DatosEmpleado Where DNI=?";
         PreparedStatement pstmt = conn.prepareStatement(sql);
         pstmt.setString(1, dni);
-        ResultSet rs = pstmt.executeQuery(sql);
+        ResultSet rs = pstmt.executeQuery();
 
         if(rs.next()){
 
@@ -93,7 +96,8 @@ public class Empleado {
         System.out.println("Introduzca su DNI:");
         String dni=sc.nextLine();
 
-        if(!existeEmpleado(conn, dni)){
+        if(existeEmpleado(conn, dni)){
+            System.out.println("El empleado ya existe");
             conn.rollback(saveUpdateEmpleado);
             conn.setAutoCommit(true);
             return;
@@ -177,13 +181,14 @@ public class Empleado {
         String dni = sc.nextLine();
 
         if(!existeEmpleado(conn, dni)){
+            System.out.println("El empleado no existe");
             conn.rollback(saveUpdateEmpleado);
             conn.setAutoCommit(true);
             return;
         }
 
         if(comprobarBajaEmpleado(conn, dni)){
-            System.out.println("La pelicula esta dada de baja.");
+            System.out.println("El empleado esta dado de baja.");
             conn.setAutoCommit(true);
             return;
         }
@@ -193,7 +198,7 @@ public class Empleado {
         String turno = null;
         PreparedStatement updateEmpleado;
         String sqlupdateEmpleado;
-        while(opcion<1 || opcion>5){
+        while(opcion!=6){
 
             System.out.println("¿Qué dato quiere modificar?");
             System.out.println("1. Nombre.");
@@ -201,6 +206,7 @@ public class Empleado {
             System.out.println("3. Teléfono.");
             System.out.println("4. Dirección.");
             System.out.println("5. Turno.");
+            System.out.println("6. Finalizar.");
             opcion=sc.nextInt();
             sc.nextLine();
             switch (opcion){
@@ -261,6 +267,7 @@ public class Empleado {
                         updateEmpleado.setString(1, turno);
                     }
                     break;
+
             }
 
             System.out.println("¿Qué dato quiere modificar?");
@@ -293,14 +300,21 @@ public class Empleado {
     }
 
     public static void darBajaEmpleado(Connection conn, Scanner sc) throws SQLException {
-
+        conn.setAutoCommit(false);
         Savepoint saveBajaEmpleado=conn.setSavepoint();
 
         System.out.println("Introduzca el DNI del empleado que quieras dar de baja:");
         String dni = sc.nextLine();
 
         if(!existeEmpleado(conn, dni)){
+            System.out.println("El empleado no existe");
             conn.rollback(saveBajaEmpleado);
+            conn.setAutoCommit(true);
+            return;
+        }
+
+        if(comprobarBajaEmpleado(conn, dni)){
+            System.out.println("El empleado esta dado de baja.");
             conn.setAutoCommit(true);
             return;
         }
@@ -334,20 +348,24 @@ public class Empleado {
         String sql = "SELECT * FROM DatosEmpleado";
 
         PreparedStatement pstmt = conn.prepareStatement(sql);
-        ResultSet rs = pstmt.executeQuery(sql);
+        ResultSet rs = pstmt.executeQuery();
 
         System.out.println("Listado de empleados:");
         System.out.println("DNI\tNombre\tApellidos\tTelefono\tSueldo\tDireccion\tTurno\tFecha Baja");
         System.out.println("-----------------------------------------------");
-        while (rs.next()) {
-            System.out.println(rs.getString("DNI") + "\t" +
-                    rs.getString("Nombre") + "\t" +
-                    rs.getString("Apellidos") + "\t" +
-                    rs.getString("Telefono") + "\t" +
-                    rs.getDouble("Sueldo") + "\t" +
-                    rs.getString("Direccion") + "\t" +
-                    rs.getString("NombreTurno") + "\t" +
-                    rs.getDate("FechaBaja"));
+        if(rs.next()) {
+            do {
+                System.out.println(rs.getString("DNI") + "\t" +
+                        rs.getString("Nombre") + "\t" +
+                        rs.getString("Apellidos") + "\t" +
+                        rs.getString("Telefono") + "\t" +
+                        rs.getDouble("Sueldo") + "\t" +
+                        rs.getString("Direccion") + "\t" +
+                        rs.getString("NombreTurno") + "\t" +
+                        rs.getDate("FechaBaja"));
+            }while(rs.next());
+        }else {
+            System.out.println("No hay empleados");
         }
     }
 
@@ -371,7 +389,7 @@ public class Empleado {
 
                     PreparedStatement pstmt = conn.prepareStatement(sql);
                     pstmt.setString(1, nombre);
-                    ResultSet rs = pstmt.executeQuery(sql);
+                    ResultSet rs = pstmt.executeQuery();
 
                     System.out.println("Resultados de empleados buscados por nombre:");
                     System.out.println("DNI\tNombre\tApellidos\tTelefono\tSueldo\tDireccion\tTurno\tFecha Baja");
@@ -394,7 +412,7 @@ public class Empleado {
 
                     PreparedStatement pstmt1 = conn.prepareStatement(sql1);
                     pstmt1.setString(1, apellidos);
-                    ResultSet rs1 = pstmt1.executeQuery(sql1);
+                    ResultSet rs1 = pstmt1.executeQuery();
 
                     System.out.println("Resultados de empleados buscados por apellidos:");
                     System.out.println("DNI\tNombre\tApellidos\tTelefono\tSueldo\tDireccion\tTurno\tFecha Baja");
@@ -417,7 +435,7 @@ public class Empleado {
 
                     PreparedStatement pstmt2 = conn.prepareStatement(sql2);
                     pstmt2.setString(1, dni);
-                    ResultSet rs2 = pstmt2.executeQuery(sql2);
+                    ResultSet rs2 = pstmt2.executeQuery();
 
                     System.out.println("Resultados de empleados buscados por DNI:");
                     System.out.println("DNI\tNombre\tApellidos\tTelefono\tSueldo\tDireccion\tTurno\tFecha Baja");
