@@ -262,9 +262,9 @@ public class Empleado {
 
                 }
 
-
-
-                System.out.println("¿Quieres confirmar los cambios?\n1. Si\n2. No");
+                System.out.println("¿Quieres confirmar los cambios?");
+                System.out.println("1. Sí");
+                System.out.println("2. No");
                 switch (sc.nextInt()){
                     case 1:
                         conn.commit();
@@ -287,6 +287,7 @@ public class Empleado {
             }
         }while (!existe);
     }
+
     //La fecha no se comprueba asi, solo estas ejecutando el select sin guardarlo en ningun lado fecha solo es el string base del preparedStatement no se guarda ahi el resultado
     //La fecha actual no se obtiene asi, solo has creado un objeto fecha sin valor ninguno
     //El while esta mal no puedes obligar a poner un dni, si todos estan de baja o no existen empleados te quedas aqui para siempre
