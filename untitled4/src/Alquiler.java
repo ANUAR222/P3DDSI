@@ -310,13 +310,11 @@ public class Alquiler {
         }while (!Pelicula.comprobarIdPelicula(conn, idPelicula) || Pelicula.comprobarBajaPelicula(conn, idPelicula));
         double calificacion;
         do {
-            System.out.println("Introduce la calificación entre 0 y 10 o espacio si no quiere:");
+            System.out.println("Introduce la calificación entre 0 y 10 o -1 si no quiere:");
             calificacion = sc.nextDouble();
             sc.nextLine();
-        }while (calificacion < 0 || calificacion > 10 && calificacion != ' ');
-        if (calificacion != ' ') {
-            modificarCalificacion(conn, correo, idPelicula, calificacion);
-        }
+        }while (calificacion < 0 || calificacion > 10 );
+        modificarCalificacion(conn, correo, idPelicula, calificacion);
         if (!verificarAlquilerExistente(conn, correo, idPelicula)) {
             System.out.println("Error: El cliente no tiene esta película alquilada.");
             return;
