@@ -320,12 +320,29 @@ public class Alquiler {
                 return;
             }
         }while (!Pelicula.comprobarIdPelicula(conn, idPelicula) || Pelicula.comprobarBajaPelicula(conn, idPelicula));
+        double calificacion;
+
         if (!verificarAlquilerExistente(conn, correo, idPelicula)) {
             System.out.println("Error: El cliente no tiene esta película alquilada.");
             return;
         }
-
+        do {
+             System.out.println("Introduce la calificación entre 0 y 10 :");
+             calificacion = sc.nextDouble();
+             sc.nextLine();
+         }while (calificacion < 0 || calificacion > 10 );
+         modificarCalificacion(conn, correo, idPelicula, calificacion);
         registrarAccesoPelicula(conn, correo, idPelicula);
+    }
+
+     public static void modificarCalificacion(Connection conn, String correo, int idPelicula, double calificacion) throws SQLException {
+        String sql = "UPDATE DatosAlquiler SET Calificacion = ? WHERE CorreoElectronico = ? AND IDPelicula = ?";
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setDouble(1, calificacion);
+            pstmt.setString(2, correo);
+            pstmt.setInt(3, idPelicula);
+            pstmt.executeUpdate();
+            System.out.println("Calificación modificada con éxito.");
     }
     private static void registrarAccesoPelicula(Connection conn, String correo, int idPelicula) throws SQLException {
         String sql = "UPDATE DatosAlquiler SET FechaAcceso = CURRENT_DATE WHERE CorreoElectronico = ? AND IDPelicula = ?";
