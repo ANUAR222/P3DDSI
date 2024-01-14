@@ -8,7 +8,7 @@ import java.util.Scanner;
 
 public class Empleado {
     //While esta mal solo sale cuando buscas enmpleado
-    static void menuEmpleados(Connection conn, Scanner sc) throws SQLException{
+    static void menuEmpleados(Connection conn, Scanner sc) throws SQLException {
 
         System.out.println("Bienvenido al menú de empleado:");
         int opcion = -1;
@@ -26,19 +26,19 @@ public class Empleado {
             sc.nextLine();
             switch (opcion) {
                 case 1:
-                    darAltaEmpleado(conn,sc);
+                    darAltaEmpleado(conn, sc);
                     break;
                 case 2:
-                    darBajaEmpleado(conn,sc);
+                    darBajaEmpleado(conn, sc);
                     break;
                 case 3:
-                    modificarEmpleado(conn,sc);
+                    modificarEmpleado(conn, sc);
                     break;
                 case 4:
-                    mostrarEmpleado(conn,sc);
+                    mostrarEmpleado(conn, sc);
                     break;
                 case 5:
-                    buscarEmpleado(conn,sc);
+                    buscarEmpleado(conn, sc);
                     break;
                 default:
                     System.out.println("Opción no válida.");
@@ -46,41 +46,6 @@ public class Empleado {
             }
         }
     }
-    //Tienes que comprobar que no esten insertados y llamar a esta funcion nada mas entrar al menu xq si no va a dar excepcion el alta de empleado
-    static void insertarDatosTurno(Connection conn) throws SQLException {
-
-        String insertDatosTurno = "INSERT INTO DatosTurno (NombreTurno, HoraEntrada, HoraSalida, SueldoHora, SueldoTotal) VALUES (?, ?, ?, ?, ?)";
-        PreparedStatement stmt = conn.prepareStatement(insertDatosTurno);
-        stmt.setString(1, "Turno Matutino");
-        stmt.setTime(2, Time.valueOf("08:00:00"));
-        stmt.setTime(3, Time.valueOf("16:00:00"));
-        stmt.setFloat(4, 5.0f);
-        stmt.setFloat(5, 1200.0f);
-        stmt.executeUpdate();
-
-
-        String insertDatosTurno2 = "INSERT INTO DatosTurno (NombreTurno, HoraEntrada, HoraSalida, SueldoHora, SueldoTotal) VALUES (?, ?, ?, ?, ?)";
-        PreparedStatement stmt1 = conn.prepareStatement(insertDatosTurno2);
-        stmt1.setString(1, "Turno Vespertino");
-        stmt1.setTime(2, Time.valueOf("16:00:00"));
-        stmt1.setTime(3, Time.valueOf("00:00:00"));
-        stmt1.setFloat(4, 6.5f);
-        stmt1.setFloat(5, 1560.0f);
-        stmt1.executeUpdate();
-
-
-        String insertDatosTurno3 = "INSERT INTO DatosTurno (NombreTurno, HoraEntrada, HoraSalida, SueldoHora, SueldoTotal) VALUES (?, ?, ?, ?, ?)";
-        PreparedStatement stmt2 = conn.prepareStatement(insertDatosTurno3);
-        stmt2.setString(1, "Turno Nocturno");
-        stmt2.setTime(2, Time.valueOf("00:00:00"));
-        stmt2.setTime(3, Time.valueOf("08:00:00"));
-        stmt2.setFloat(4, 8.0f);
-        stmt2.setFloat(5, 1920.0f);
-        stmt2.executeUpdate();
-
-
-    }
-
 
     public static boolean existeEmpleado(Connection conn, String dni) throws SQLException {
 
