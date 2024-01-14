@@ -159,12 +159,13 @@ public class Empleado {
             }
         }while (existe);
     }
-    //Esta mal entero copia si quieres el de pelicula y cambia los datos
+
     public static void modificarEmpleado(Connection conn, Scanner sc) throws SQLException {
 
+        conn.setAutoCommit(false);
+        Savepoint saveUpdateEmpleado=conn.setSavepoint();
         System.out.println("Introduzca el DNI del empleado que quieras modificar:");
         String dni = sc.nextLine();
-
         boolean existe;
 
         do {
@@ -175,150 +176,107 @@ public class Empleado {
 
                 System.out.println("Usuario existente.");
                 String nombre=null;
-                int opcionNombre=-1;
-                while(opcionNombre<1 || opcionNombre>2){
-
-                    System.out.println("¿Quiere modificar su nombre?");
-                    System.out.println("1. Sí.");
-                    System.out.println("2. No.");
-                    opcionNombre=sc.nextInt();
-                    sc.nextLine();
-                    switch (opcionNombre){
-
-                        case 1:
-                            System.out.println("Introduzca su nombre:");
-                            nombre = sc.nextLine();
-                            break;
-                        case 2:
-                            nombre="SELECT Nombre FROM DatosEmpleado WHERE DNI=?";
-                            PreparedStatement pstmt = conn.prepareStatement(nombre);
-                            pstmt.setString(1, dni);
-                            pstmt.executeUpdate();
-                            break;
-                        default:
-                            System.out.println("Opcion no válida.");
-                            break;
-                    }
-                }
-
-                String apellidos=null;
-                int opcionApellidos=-1;
-                while(opcionApellidos<1 || opcionApellidos>2){
-
-                    System.out.println("¿Quiere modificar sus apellidos?");
-                    System.out.println("1. Sí.");
-                    System.out.println("2. No.");
-                    opcionNombre=sc.nextInt();
-                    sc.nextLine();
-                    switch (opcionApellidos){
-
-                        case 1:
-                            System.out.println("Introduzca sus apellidos:");
-                            apellidos = sc.nextLine();
-                            break;
-                        case 2:
-                            nombre="SELECT Apellidos FROM DatosEmpleado WHERE DNI=?";
-                            PreparedStatement pstmt = conn.prepareStatement(apellidos);
-                            pstmt.setString(1, dni);
-                            pstmt.executeUpdate();
-                            break;
-                        default:
-                            System.out.println("Opcion no válida.");
-                            break;
-                    }
-                }
-
-                String telefono=null;
-                int opcionTelefono=-1;
-                while(opcionTelefono<1 || opcionTelefono>2){
-
-                    System.out.println("¿Quiere introducir su teléfono?");
-                    System.out.println("1. Sí.");
-                    System.out.println("2. No.");
-                    opcionTelefono=sc.nextInt();
-                    sc.nextLine();
-                    switch (opcionTelefono){
-
-                        case 1:
-                            System.out.println("Introduzca su teléfono:");
-                            telefono = sc.nextLine();
-                            break;
-                        case 2:
-                            nombre="SELECT Telefono FROM DatosEmpleado WHERE DNI=?";
-                            PreparedStatement pstmt = conn.prepareStatement(telefono);
-                            pstmt.setString(1, dni);
-                            pstmt.executeUpdate();
-                            break;
-                        default:
-                            System.out.println("Opcion no válida.");
-                            break;
-                    }
-                }
-
-                String direccion=null;
-                int opcionDireccion=-1;
-                while(opcionDireccion<1 || opcionDireccion>2){
-
-                    System.out.println("¿Quiere introducir su dirección?");
-                    System.out.println("1. Sí.");
-                    System.out.println("2. No.");
-                    opcionDireccion=sc.nextInt();
-                    sc.nextLine();
-                    switch (opcionDireccion){
-
-                        case 1:
-                            System.out.println("Introduzca su dirección:");
-                            direccion = sc.nextLine();
-                            break;
-                        case 2:
-                            nombre="SELECT Direccion FROM DatosEmpleado WHERE DNI=?";
-                            PreparedStatement pstmt = conn.prepareStatement(direccion);
-                            pstmt.setString(1, dni);
-                            pstmt.executeUpdate();
-                            break;
-                        default:
-                            System.out.println("Opcion no válida.");
-                            break;
-                    }
-                }
-
+                int opcion=-1;
                 int opcionturno = -1;
                 String turno = null;
-                while (opcionturno < 1 || opcionturno > 3) {
+                PreparedStatement updateEmpleado;
+                String sqlupdateEmpleado;
+                while(opcion<1 || opcion>5){
 
-                    System.out.println("Seleccione una de las siguientes opciones para su turno:");
-                    System.out.println("1. Turno Matutino.");
-                    System.out.println("2. Turno Vespertino.");
-                    System.out.println("3. Turno Nocturno.");
-
-                    opcionturno = sc.nextInt();
+                    System.out.println("¿Qué dato quiere modificar?");
+                    System.out.println("1. Nombre.");
+                    System.out.println("2. Apellidos.");
+                    System.out.println("3. Teléfono.");
+                    System.out.println("4. Dirección.");
+                    System.out.println("5. Turno.");
+                    opcion=sc.nextInt();
                     sc.nextLine();
-                    switch (opcionturno) {
+                    switch (opcion){
+
                         case 1:
-                            turno = "Turno Matutino";
+                            sqlupdateEmpleado="UPDATE DatosEmpleado SET Nombre=? WHERE DNI=?";
+                            updateEmpleado=conn.prepareStatement(sqlupdateEmpleado);
+                            updateEmpleado.setString(2, dni);
+                            System.out.println("Introduzca su nombre:");
+                            updateEmpleado.setString(1,sc.nextLine());
                             break;
                         case 2:
-                            turno = "Turno Vespertino";
+                            sqlupdateEmpleado="UPDATE DatosEmpleado SET Apellidos=? WHERE DNI=?";
+                            updateEmpleado=conn.prepareStatement(sqlupdateEmpleado);
+                            updateEmpleado.setString(2, dni);
+                            System.out.println("Introduzca sus apellidos:");
+                            updateEmpleado.setString(1,sc.nextLine());
                             break;
                         case 3:
-                            turno = "Turno Nocturno";
+                            sqlupdateEmpleado="UPDATE DatosEmpleado SET Telefono=? WHERE DNI=?";
+                            updateEmpleado=conn.prepareStatement(sqlupdateEmpleado);
+                            updateEmpleado.setString(2, dni);
+                            System.out.println("Introduzca su teléfono:");
+                            updateEmpleado.setString(1,sc.nextLine());
                             break;
-                        default:
-                            System.out.println("Opción no válida.");
+                        case 4:
+                            sqlupdateEmpleado="UPDATE DatosEmpleado SET Direccion=? WHERE DNI=?";
+                            updateEmpleado=conn.prepareStatement(sqlupdateEmpleado);
+                            updateEmpleado.setString(2, dni);
+                            System.out.println("Introduzca su dirección:");
+                            updateEmpleado.setString(1,sc.nextLine());
+                            break;
+                        case 5:
+                            sqlupdateEmpleado="UPDATE DatosEmpleado SET NombreTurno=? WHERE DNI=?";
+                            updateEmpleado=conn.prepareStatement(sqlupdateEmpleado);
+                            updateEmpleado.setString(2, dni);
+                            while (opcionturno < 1 || opcionturno > 3) {
+                                System.out.println("Seleccione una de las siguientes opciones para su turno:");
+                                System.out.println("1. Turno Matutino.");
+                                System.out.println("2. Turno Vespertino.");
+                                System.out.println("3. Turno Nocturno.");
+                                opcionturno = sc.nextInt();
+                                sc.nextLine();
+                                switch (opcionturno) {
+                                    case 1:
+                                        turno = "Turno Matutino";
+                                        break;
+                                    case 2:
+                                        turno = "Turno Vespertino";
+                                        break;
+                                    case 3:
+                                        turno = "Turno Nocturno";
+                                        break;
+                                    default:
+                                        System.out.println("Opción no válida.");
+                                        break;
+                                }
+                                updateEmpleado.setString(1, turno);
+                            }
                             break;
                     }
+
+                    System.out.println("¿Qué dato quiere modificar?");
+                    System.out.println("1. Nombre.");
+                    System.out.println("2. Apellidos.");
+                    System.out.println("3. Teléfono.");
+                    System.out.println("4. Dirección.");
+                    System.out.println("5. Turno.");
+                    opcion=sc.nextInt();
+                    sc.nextLine();
+
                 }
 
-                String sql = "UPDATE DatosEmpleado SET Nombre=?, Apellidos=?, Telefono=?, Direccion=?, NombreTurno=? WHERE DNI=?";
 
-                PreparedStatement pstmt = conn.prepareStatement(sql);
-                pstmt.setString(1, nombre);
-                pstmt.setString(2, apellidos);
-                pstmt.setString(3, telefono);
-                pstmt.setString(4, direccion);
-                pstmt.setString(5, turno);
-                pstmt.setString(6, dni);
-                pstmt.executeUpdate();
+
+                System.out.println("¿Quieres confirmar los cambios?\n1. Si\n2. No");
+                switch (sc.nextInt()){
+                    case 1:
+                        conn.commit();
+                        System.out.println("Cambios aplicados");
+                        break;
+                    case 2:
+                        conn.rollback(saveUpdateEmpleado);
+                        System.out.println("Cambios revertidos");
+                        break;
+                }
+                sc.nextLine();
+                conn.setAutoCommit(true);
 
             } else {
 
