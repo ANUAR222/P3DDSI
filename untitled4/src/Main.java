@@ -19,35 +19,31 @@ public class Main {
             conn = conectarBaseDeDatos(sc);
             int opcion = -1;
 
-            while (opcion!=6) {
+            while (opcion!=5) {
                 System.out.println("Selecciona una de las siguientes opciones:");
-                System.out.println("1. Borrar y crear tablas.");
-                System.out.println("2. Menu Pelicula.");
-                System.out.println("3. Menu Alquiler.");
-                System.out.println("4. Menu Empleado.");
-                System.out.println("5. Menu Cliente.");
-                System.out.println("6. Salir.");
+                System.out.println("1. Menu Pelicula.");
+                System.out.println("2. Menu Alquiler.");
+                System.out.println("3. Menu Empleado.");
+                System.out.println("4. Menu Cliente.");
+                System.out.println("5. Salir.");
 
 
                 opcion = sc.nextInt();
                 sc.nextLine();
                 switch (opcion) {
                     case 1:
-                        insertarDatosEjemplo(conn);
-                        break;
-                    case 2:
                         Pelicula.menuPelicula(conn);
                         break;
-                    case 3:
+                    case 2:
                         Alquiler.simularInsercionAlquiler(conn, sc);
                         break;
-                    case 4:
+                    case 3:
                         Empleado.menuEmpleados(conn,sc);
                         break;
-                    case 5:
+                    case 4:
                         Cliente.menuCliente(conn, sc);
                         break;
-                    case 6:
+                    case 5:
                         salir(conn);
                         break;
                     default:
@@ -131,120 +127,6 @@ public class Main {
         return conn;
     }
 
-    public static void insertarDatosEjemplo(Connection conn) throws SQLException {
-        // Insertar datos en la tabla DatosPelicula
-        String insertDatosPelicula = "INSERT INTO DatosPelicula (Nombre, Precio, FechaEstreno, FechaAlta, FechaBaja, Sinopsis, Calificacion) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        try (PreparedStatement stmt = conn.prepareStatement(insertDatosPelicula, Statement.RETURN_GENERATED_KEYS)) {
-            stmt.setString(1, "Interstellar");
-            stmt.setDouble(2, 12.99);
-            stmt.setDate(3, Date.valueOf("2014-11-07"));
-            stmt.setDate(4, Date.valueOf("2014-11-01"));
-            stmt.setDate(5, Date.valueOf("2015-04-30"));
-            stmt.setString(6, "Un grupo de exploradores hacen uso de un agujero de gusano recién descubierto para superar las limitaciones de los viajes espaciales tripulados y conquistar las vastas distancias involucradas en un viaje interestelar.");
-            stmt.setDouble(7, 4.7);
-            stmt.executeUpdate();
-
-            // Obtener el ID generado para la película
-            ResultSet generatedKeys = stmt.getGeneratedKeys();
-            if (generatedKeys.next()) {
-                int idPelicula = generatedKeys.getInt(1);
-
-                // Insertar datos en la tabla DatosGenero
-                String insertDatosGenero = "INSERT INTO DatosGenero (Nombre) VALUES (?)";
-                try (PreparedStatement genreStmt = conn.prepareStatement(insertDatosGenero)) {
-                    genreStmt.setString(1, "Ciencia Ficción");
-                    genreStmt.executeUpdate();
-
-                    // Insertar datos en la tabla PerteneceA
-                    String insertPerteneceA = "INSERT INTO PerteneceA (IDPelicula, IDGenero) VALUES (?, ?)";
-                    try (PreparedStatement perteneceAStmt = conn.prepareStatement(insertPerteneceA)) {
-                        perteneceAStmt.setInt(1, idPelicula);
-                        perteneceAStmt.setInt(2, 1);
-                        perteneceAStmt.executeUpdate();
-                    }
-
-                    // Insertar datos en la tabla Actores
-                    String insertActores = "INSERT INTO Actores (NombreActor) VALUES (?)";
-                    try (PreparedStatement actorStmt = conn.prepareStatement(insertActores)) {
-                        actorStmt.setString(1, "Matthew McConaughey");
-                        actorStmt.executeUpdate();
-
-                        // Insertar datos en la tabla Actua
-                        String insertActua = "INSERT INTO Actua (IDPelicula, NombreActor) VALUES (?, ?)";
-                        try (PreparedStatement actuaStmt = conn.prepareStatement(insertActua)) {
-                            actuaStmt.setInt(1, idPelicula);
-                            actuaStmt.setString(2, "Matthew McConaughey");
-                            actuaStmt.executeUpdate();
-                        }
-                    }
-                }
-            }
-        }
-
-        // Insertar datos en la tabla DatosCliente
-        String insertDatosCliente = "INSERT INTO DatosCliente (CorreoElectronico, Nombre, Apellidos, Telefono, FechaAlta, FechaBaja) VALUES (?, ?, ?, ?, ?, ?)";
-        try (PreparedStatement stmt = conn.prepareStatement(insertDatosCliente)) {
-            stmt.setString(1, "cliente1@example.com");
-            stmt.setString(2, "Juan");
-            stmt.setString(3, "Pérez");
-            stmt.setString(4, "123456789");
-            stmt.setDate(5, Date.valueOf("2022-01-01"));
-            stmt.setDate(6, Date.valueOf("2022-12-31"));
-            stmt.executeUpdate();
-        }
-
-        // Insertar datos en la tabla DatosTurno
-        String insertDatosTurno = "INSERT INTO DatosTurno (NombreTurno, HoraEntrada, HoraSalida, SueldoHora, SueldoTotal) VALUES (?, ?, ?, ?, ?)";
-        try (PreparedStatement stmt = conn.prepareStatement(insertDatosTurno)) {
-            stmt.setString(1, "Turno Matutino");
-            stmt.setTime(2, Time.valueOf("08:00:00"));
-            stmt.setTime(3, Time.valueOf("16:00:00"));
-            stmt.setFloat(4, 5.0f);
-            stmt.setFloat(5, 1200.0f);
-            stmt.executeUpdate();
-        }
-
-        // Insertar datos en la tabla DatosEmpleado
-        String insertDatosEmpleado = "INSERT INTO DatosEmpleado (DNI, Nombre, Apellidos, Telefono, Sueldo, Direccion, NombreTurno) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        try (PreparedStatement stmt = conn.prepareStatement(insertDatosEmpleado)) {
-            stmt.setString(1, "12345678A");
-            stmt.setString(2, "Ana");
-            stmt.setString(3, "López");
-            stmt.setString(4, "987654321");
-            stmt.setFloat(5, 1200.0f);
-            stmt.setString(6, "Calle Mayor, 123");
-            stmt.setString(7, "Turno Matutino");
-            stmt.executeUpdate();
-        }
-
-        // Insertar datos en la tabla DatosAlquiler
-        String insertDatosAlquiler = "INSERT INTO DatosAlquiler (CorreoElectronico, IDPelicula, FechaAlquiler, FechaVencimiento, FechaAcceso, Calificacion) VALUES (?, ?, ?, ?, ?, ?)";
-        try (PreparedStatement stmt = conn.prepareStatement(insertDatosAlquiler)) {
-            stmt.setString(1, "cliente1@example.com");
-            stmt.setInt(2, 1);
-            stmt.setDate(3, Date.valueOf("2022-05-01"));
-            stmt.setDate(4, Date.valueOf("2022-05-15"));
-            stmt.setDate(5, Date.valueOf("2022-05-02"));
-            stmt.setDouble(6, 4.5);
-            stmt.executeUpdate();
-        }
-
-        // Insertar datos en la tabla PrecioAlquiler
-        String insertPrecioAlquiler = "INSERT INTO PrecioAlquiler (IDPelicula, FechaAlquiler, FechaVencimiento, PrecioAlquiler) VALUES (?, ?, ?, ?)";
-        try (PreparedStatement stmt = conn.prepareStatement(insertPrecioAlquiler)) {
-            stmt.setInt(1, 1);
-            stmt.setDate(2, Date.valueOf("2022-05-01"));
-            stmt.setDate(3, Date.valueOf("2022-05-15"));
-            stmt.setDouble(4, 3.5);
-            stmt.executeUpdate();
-        }
-    }
-
-    static void ejecutarSQL(Connection conn, String sql) throws SQLException {
-        try (Statement stmt = conn.createStatement()) {
-            stmt.executeUpdate(sql);
-        }
-    }
     public static void salir(Connection conn) {
         System.out.println("Saliendo...");
         try {

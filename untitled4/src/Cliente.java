@@ -57,7 +57,6 @@ public class Cliente {
         return rs.getInt(1) > 0;
     }
     static void darAltaCliente(Connection conn, Scanner sc) throws SQLException {
-
         System.out.println("Introduce el correo electrónico del cliente:");
         String correoElectronico = sc.nextLine();
         if (comprobarExisteCliente(conn, correoElectronico) || correoElectronico.isEmpty()) {
@@ -91,14 +90,6 @@ public class Cliente {
         pstmt.executeUpdate();
 
     }
-    static void ejecutarSQL(Connection conn, String sql) throws SQLException {
-        try (Statement stmt = conn.createStatement()) {
-            stmt.executeUpdate(sql);
-        }
-    }
-
-
-
 
     public static boolean comprobarBajaCliente(Connection conn, String correo) throws SQLException{
         String sqlComprobarBaja = "SELECT FechaBaja FROM DatosCliente WHERE CorreoElectronico = ?";
@@ -115,7 +106,6 @@ public class Cliente {
 
 
     public static void darBajaCliente(Connection conn, Scanner sc) throws SQLException {
-
         System.out.println("Introduzca el correo electronico del cliente que quieras dar de baja:");
         String correo;
         correo = sc.nextLine();
@@ -237,9 +227,6 @@ public class Cliente {
         }
         sc.nextLine();
         conn.setAutoCommit(true);
-
-
-
     }
     public static void mostrarPeliculasAlquiladas(Connection conn, Scanner sc) throws SQLException {
         System.out.println("Introduzca el correo electronico del cliente que quieras ver los alquileres:");
